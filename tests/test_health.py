@@ -14,6 +14,17 @@ def test_homepage_loads(client):
     assert response.status_code == 200
     assert b"Ultimate Bazinga" in response.data
 
+
+def test_homepage_includes_accessible_cinematic_intro(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert b'id="cinematic-intro"' in response.data
+    assert b'id="intro-skip"' in response.data
+    assert b'id="replay-intro"' in response.data
+    assert b"prefers-reduced-motion" not in response.data
+
+
 def test_participant_can_join_multiple_tournaments(app):
     from sqlalchemy.orm import configure_mappers
 
@@ -56,3 +67,24 @@ def test_participant_can_join_multiple_tournaments(app):
         db.session.commit()
 
         assert len(participant.registrations) == 2
+
+
+def test_homepage_exposes_login_stage_and_gaming_hub(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert b'id="auth-stage"' in response.data
+    assert b'id="guest-entry"' in response.data
+    assert b'class="games-layout"' in response.data
+    assert b'Continuar com Google' in response.data
+    assert b'Continuar com Discord' in response.data
+
+
+def test_cinematic_intro_uses_three_js_module(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert b'type="module"' in response.data
+    assert b'static/js/intro.js' in response.data
+    assert b'id="intro-3d-canvas"' in response.data
+    assert b'id="fire-transition"' in response.data

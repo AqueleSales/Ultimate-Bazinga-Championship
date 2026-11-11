@@ -3,42 +3,59 @@
 {% block title %}Ultimate Bazinga Championship | Bazinga Hub{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <p class="eyebrow">BAZINGA HUB APRESENTA</p>
-    <h1>Ultimate Bazinga <span>Championship</span></h1>
-    <p class="hero-description">
-        O ponto de encontro das competições Bazinga. Acompanhe campeonatos,
-        confrontos e resultados em um só lugar.
-    </p>
-    <div class="hero-actions">
-        <a class="button button-primary" href="#championship-info">Conhecer o campeonato</a>
-        <span class="status-pill"><span class="status-dot"></span> Plataforma em desenvolvimento</span>
-    </div>
-</section>
+<div class="games-layout">
+    <aside class="games-sidebar" aria-label="Menu principal">
+        <a class="games-logo" href="#overview"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a>
+        <a class="sidebar-play" href="#competitions"><span>▶</span> PLAY</a>
+        <nav class="sidebar-nav">
+            <a class="is-current" href="#overview"><span>◈</span> Visão geral</a>
+            <a href="#competitions"><span>⌕</span> Campeonatos</a>
+            <a href="#matches"><span>⚔</span> Partidas</a>
+            <a href="#ranking"><span>♜</span> Ranking</a>
+            <a href="#hall"><span>✧</span> Conquistas</a>
+            <a href="#community"><span>♧</span> Comunidade</a>
+        </nav>
+        <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div>
+    </aside>
 
-<section class="content-section" id="championship-info">
-    <div class="section-heading">
-        <p class="eyebrow">O ECOSSISTEMA COMPETITIVO</p>
-        <h2>Uma nova forma de competir.</h2>
-        <p>Organização, partidas e histórico preparados para diferentes formatos de campeonato.</p>
-    </div>
+    <div class="games-main">
+        <div class="games-topbar">
+            <div class="games-search"><span>⌕</span><span>Buscar campeonatos, jogadores...</span></div>
+            <div class="games-top-actions"><span class="topbar-status"><i></i> ARENA EM PREPARAÇÃO</span><button type="button" class="topbar-avatar" aria-label="Perfil indisponível">B</button></div>
+        </div>
 
-    <div class="feature-grid">
-        <article class="feature-card">
-            <span class="feature-number">01</span>
-            <h3>Campeonatos flexíveis</h3>
-            <p>Competições individuais ou por equipes, com fases e formatos configuráveis.</p>
-        </article>
-        <article class="feature-card">
-            <span class="feature-number">02</span>
-            <h3>Partidas em tempo real</h3>
-            <p>Placar e andamento das partidas sincronizados para quem acompanha o evento.</p>
-        </article>
-        <article class="feature-card">
-            <span class="feature-number">03</span>
-            <h3>Histórico permanente</h3>
-            <p>Perfis competitivos, rankings, títulos e retrospectivas de cada edição.</p>
-        </article>
+        <section class="games-hero" id="overview">
+            <div class="games-hero-art" aria-hidden="true"><div class="hero-ring hero-ring-one"></div><div class="hero-ring hero-ring-two"></div><div class="hero-sigil">B</div></div>
+            <div class="games-hero-copy">
+                <p class="games-kicker">BAZINGA HUB <span>/</span> CENTRAL COMPETITIVA</p>
+                <h1>THE ARENA<br><em>AWAITS.</em></h1>
+                <p>O próximo capítulo da competição começa aqui. Reúna sua equipe, acompanhe os confrontos e dispute seu lugar na história.</p>
+                <a class="games-cta" href="#competitions">EXPLORAR CAMPEONATOS <span>↗</span></a>
+            </div>
+            <div class="games-hero-foot"><span>01 / COMPETIR</span><span>02 / CONQUISTAR</span><span>03 / MARCAR HISTÓRIA</span></div>
+        </section>
+
+        <div class="games-tabs" aria-label="Seções do campeonato">
+            <a class="active" href="#competitions">DESTAQUES</a><a href="#matches">PARTIDAS</a><a href="#ranking">RANKING</a><a href="#hall">HALL DA FAMA</a>
+        </div>
+
+        <section class="games-feature-grid" id="competitions">
+            <article class="games-feature feature-tournament">
+                <div class="feature-image feature-image-tournament" aria-hidden="true"><span class="feature-orb">UBC</span></div>
+                <div class="feature-copy"><p class="feature-eyebrow">01 / O PRÓXIMO EVENTO</p><h2>THE NEXT<br>CHAMPION.</h2><p>O espaço dos próximos torneios oficiais será ativado quando o sistema de competições estiver conectado.</p><span class="feature-state">MÓDULO EM DESENVOLVIMENTO</span></div>
+            </article>
+            <article class="games-feature feature-live" id="matches">
+                <div class="feature-copy"><p class="feature-eyebrow">02 / AO VIVO</p><h2>GAME<br>ON.</h2><p>Nenhuma partida publicada no momento.</p><span class="feature-state">AGUARDANDO CONFRONTOS</span></div>
+                <div class="feature-image feature-image-live" aria-hidden="true"><span>VS</span></div>
+            </article>
+        </section>
+
+        <section class="games-lower-grid">
+            <article class="games-mini-card" id="ranking"><span class="mini-index">03</span><span class="mini-symbol">♜</span><p>RANKING</p><strong>O topo está esperando.</strong><small>Classificações oficiais em breve.</small></article>
+            <article class="games-mini-card" id="hall"><span class="mini-index">04</span><span class="mini-symbol">✧</span><p>HALL DA FAMA</p><strong>Entre para a história.</strong><small>Perfis e conquistas serão adicionados.</small></article>
+            <article class="games-mini-card" id="community"><span class="mini-index">05</span><span class="mini-symbol">♧</span><p>COMUNIDADE</p><strong>Encontre sua rivalidade.</strong><small>Recursos sociais em desenvolvimento.</small></article>
+        </section>
+        <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
     </div>
-</section>
+</div>
 {% endblock %}

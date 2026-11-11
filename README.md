@@ -58,18 +58,18 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 ### Frontend
 - HTML5 com Jinja2
 - CSS3 puro, com variáveis, Flexbox e Grid
-- JavaScript Vanilla
+- JavaScript ES Modules (Three.js para a abertura 3D)
 - Fetch API
-- Socket.IO Client
+- Socket.IO Client (a integrar quando a funcionalidade em tempo real for implementada)
 
 ### Banco de dados
 - PostgreSQL
 - Neon PostgreSQL
 - SQLite como alternativa local para desenvolvimento inicial
 
-### Autenticação planejada
-- Google OAuth2
-- Discord OAuth2
+### Autenticação
+- Tela de entrada visual para Google e Discord (provedores ainda desabilitados até a integração OAuth segura).
+- Google OAuth2 e Discord OAuth2 permanecem pendentes no backend.
 
 ## 🏗️ Estrutura atual
 
@@ -78,27 +78,25 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 ├── app.py
 ├── config.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── .env.example
 ├── .gitignore
+├── AI_CONTEXT.md
 ├── bazinga/
 │   ├── __init__.py
 │   ├── extensions.py
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── participant.py
-│   │   ├── tournament.py
-│   │   └── match.py
 │   ├── routes/
-│   │   └── main.py
 │   ├── services/
 │   ├── sockets/
 │   ├── templates/
 │   │   ├── base.html
 │   │   └── championship.html
 │   └── static/
-│       └── css/
-│           └── style.css
+│       ├── css/
+│       │   └── style.css
+│       └── js/
+│           └── intro.js
 └── tests/
     ├── conftest.py
     └── test_health.py
@@ -187,7 +185,26 @@ Os testes utilizam SQLite em memória e não precisam acessar o banco de produç
 
 ## 📌 Status
 
-O projeto está em fase inicial de estruturação. A aplicação Flask, a organização modular, os primeiros modelos e a página inicial estão sendo preparados. Autenticação, regras de torneio, gerenciamento administrativo, rankings e eventos de placar ainda serão implementados e testados.
+O projeto está em fase inicial de desenvolvimento.
+
+### Implementado
+- Aplicação Flask com Application Factory, extensões e configuração por ambiente.
+- Modelos iniciais para usuários, participantes, torneios, equipes, inscrições, fases, partidas e resultados.
+- Homepage responsiva em formato de hub gamer, com navegação lateral, destaques e estados vazios sem dados fictícios.
+- Abertura cinematográfica com carta construída em Three.js, anúncio tipográfico, cortinas teatrais e passagem para a tela de entrada.
+- Transição de barreira de fogo da tela de entrada para a homepage (prévia de visitante).
+- Controles de pular/rever e respeito a movimento reduzido.
+- Testes básicos da aplicação e da presença dos controles da intro.
+
+### Em desenvolvimento / planejado
+- Integração real dos fluxos OAuth Google e Discord (credenciais e callbacks).
+- Criação e administração de torneios e inscrições.
+- Geração de chaveamentos, partidas e progressão entre fases.
+- Rankings, estatísticas, perfis e Hall da Fama alimentados pelo banco.
+- Placar e eventos Socket.IO em tempo real.
+- Painel administrativo e integração de transmissões.
+
+Os cartões da homepage que ainda não possuem integração com o backend são estados vazios/indicadores de módulos futuros; não representam dados competitivos reais.
 
 ## 👥 Projeto
 
