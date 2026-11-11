@@ -170,7 +170,7 @@ As migrações geradas devem ser versionadas no Git. Em ambientes já inicializa
 ## 🧪 Testes
 
 ```bash
-pytest
+python -m pytest
 ```
 
 Os testes utilizam SQLite em memória e não precisam acessar o banco de produção.
