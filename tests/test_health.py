@@ -75,7 +75,7 @@ def test_homepage_exposes_login_stage_and_gaming_hub(client):
     assert response.status_code == 200
     assert b'id="auth-stage"' in response.data
     assert b'id="guest-entry"' in response.data
-    assert b'id="games-layout"' in response.data
+    assert b'class="games-layout"' in response.data
     assert b'Continuar com Google' in response.data
     assert b'Continuar com Discord' in response.data
 
