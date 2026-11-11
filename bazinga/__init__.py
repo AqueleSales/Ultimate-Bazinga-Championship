@@ -16,7 +16,10 @@ def create_app(config_object=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app)
+    socketio.init_app(
+        app,
+        message_queue=app.config.get("SOCKETIO_MESSAGE_QUEUE"),
+    )
 
     from . import models  # noqa: F401
     from .routes.main import main_bp
