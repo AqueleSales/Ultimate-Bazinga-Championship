@@ -60,7 +60,7 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 - CSS3 puro, com variáveis, Flexbox e Grid
 - JavaScript Vanilla
 - Fetch API
-- Socket.IO Client
+- Socket.IO Client (a integrar quando a funcionalidade em tempo real for implementada)
 
 ### Banco de dados
 - PostgreSQL
@@ -78,27 +78,25 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 ├── app.py
 ├── config.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── .env.example
 ├── .gitignore
+├── AI_CONTEXT.md
 ├── bazinga/
 │   ├── __init__.py
 │   ├── extensions.py
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── participant.py
-│   │   ├── tournament.py
-│   │   └── match.py
 │   ├── routes/
-│   │   └── main.py
 │   ├── services/
 │   ├── sockets/
 │   ├── templates/
 │   │   ├── base.html
 │   │   └── championship.html
 │   └── static/
-│       └── css/
-│           └── style.css
+│       ├── css/
+│       │   └── style.css
+│       └── js/
+│           └── intro.js
 └── tests/
     ├── conftest.py
     └── test_health.py
@@ -187,7 +185,25 @@ Os testes utilizam SQLite em memória e não precisam acessar o banco de produç
 
 ## 📌 Status
 
-O projeto está em fase inicial de estruturação. A aplicação Flask, a organização modular, os primeiros modelos e a página inicial estão sendo preparados. Autenticação, regras de torneio, gerenciamento administrativo, rankings e eventos de placar ainda serão implementados e testados.
+O projeto está em fase inicial de desenvolvimento.
+
+### Implementado
+- Aplicação Flask com Application Factory, extensões e configuração por ambiente.
+- Modelos iniciais para usuários, participantes, torneios, equipes, inscrições, fases, partidas e resultados.
+- Homepage responsiva com identidade visual cinematográfica original.
+- Intro de entrada com cartão animado, selo Bazinga, partículas, flash e transição de fogo estilizada.
+- Controles para pular e rever a intro; preferência por movimento reduzido e foco acessível.
+- Testes básicos da aplicação e da presença dos controles da intro.
+
+### Em desenvolvimento / planejado
+- Autenticação Google e Discord.
+- Criação e administração de torneios e inscrições.
+- Geração de chaveamentos, partidas e progressão entre fases.
+- Rankings, estatísticas, perfis e Hall da Fama alimentados pelo banco.
+- Placar e eventos Socket.IO em tempo real.
+- Painel administrativo e integração de transmissões.
+
+Os cartões da homepage que ainda não possuem integração com o backend são estados vazios/indicadores de módulos futuros; não representam dados competitivos reais.
 
 ## 👥 Projeto
 
