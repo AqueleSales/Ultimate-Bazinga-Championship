@@ -3,29 +3,70 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#17151f">
+    <meta name="theme-color" content="#100d12">
+    <meta name="description" content="Ultimate Bazinga Championship — o palco das competições Bazinga.">
     <title>{% block title %}Ultimate Bazinga Championship{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+
+    <section class="cinematic-intro" id="cinematic-intro" aria-label="Abertura do campeonato" aria-hidden="true">
+        <div class="intro-atmosphere" aria-hidden="true"></div>
+        <div class="intro-sparks" id="intro-sparks" aria-hidden="true"></div>
+        <div class="intro-topline"><span>BAZINGA HUB ORIGINAL</span><span>APRESENTA</span></div>
+
+        <div class="intro-card-wrap" id="intro-card-wrap">
+            <div class="intro-card">
+                <div class="card-corner card-corner-top"></div>
+                <div class="card-corner card-corner-bottom"></div>
+                <p class="card-kicker">O palco está preparado</p>
+                <div class="card-emblem" aria-hidden="true">
+                    <span class="emblem-orbit"></span>
+                    <span class="emblem-letter">B</span>
+                    <span class="emblem-star">✦</span>
+                </div>
+                <p class="card-title">ULTIMATE<br><strong>BAZINGA</strong></p>
+                <p class="card-subtitle">CHAMPIONSHIP</p>
+                <div class="card-seal" aria-hidden="true"><span>B</span></div>
+                <p class="card-edition">A COMPETIÇÃO COMEÇA AQUI</p>
+            </div>
+        </div>
+
+        <div class="intro-flash" aria-hidden="true"></div>
+        <div class="intro-fire-wipe" aria-hidden="true"></div>
+        <div class="intro-caption" id="intro-caption" aria-live="polite">UMA NOVA DISPUTA SE APROXIMA</div>
+        <div class="intro-controls">
+            <button class="intro-enter" id="intro-enter" type="button">REVELAR CAMPEONATO <span aria-hidden="true">↗</span></button>
+            <button class="intro-skip" id="intro-skip" type="button">Pular introdução</button>
+        </div>
+        <span class="intro-index" aria-hidden="true">UBC / 001</span>
+    </section>
+
     <header class="site-header">
-        <a class="brand" href="{{ url_for('main.championship_home') }}">
+        <a class="brand" href="{{ url_for('main.championship_home') }}" aria-label="Bazinga Championship — início">
             <span class="brand-mark">B</span>
             <span>Bazinga <strong>Championship</strong></span>
         </a>
+        <nav class="header-nav" aria-label="Navegação principal">
+            <a href="#overview">Visão geral</a>
+            <a href="#competitions">Campeonatos</a>
+            <button class="replay-intro" id="replay-intro" type="button" aria-label="Rever a introdução">↻ <span>Rever intro</span></button>
+        </nav>
         <span class="header-label">ULTIMATE CHAMPIONSHIP</span>
     </header>
 
-    <main class="page-shell">
+    <main class="page-shell" id="main-content">
         {% block content %}{% endblock %}
     </main>
 
     <footer class="site-footer">
-        <span>Bazinga Hub</span>
-        <span>Ultimate Bazinga Championship</span>
+        <span>BAZINGA HUB <span class="footer-separator">/</span> ULTIMATE CHAMPIONSHIP</span>
+        <span>Feito para competir. Criado para marcar história.</span>
     </footer>
 
+    <script src="{{ url_for('static', filename='js/intro.js') }}" defer></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
