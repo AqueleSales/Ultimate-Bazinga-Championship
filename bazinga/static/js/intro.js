@@ -87,7 +87,7 @@ let THREE = null;
     function startIntro(){
         previousFocus=document.activeElement;intro.classList.add('is-active');intro.setAttribute('aria-hidden','false');
         document.body.classList.add('intro-lock');phase='arrival';startedAt=performance.now();clock.start();
-        document.getElementById('intro-skip')?.focus({preventScroll:true});
+        intro.focus({preventScroll:true});
         if(reducedMotion.matches){intro.classList.add('is-static');revealTitle();document.getElementById('intro-controls')?.classList.add('is-visible');phase='title';return;}
         if(!renderer){revealTitle();document.getElementById('intro-controls')?.classList.add('is-visible');phase='title';return;}
         cancelAnimationFrame(raf);animate();
@@ -102,7 +102,7 @@ let THREE = null;
     function closeCurtainsToHome(){
         try{sessionStorage.setItem('ubc-preview-unlocked-v1','1');}catch(_){}
         auth.classList.add('is-leaving');fireTransition.classList.add('is-running');
-        window.setTimeout(()=>{auth.hidden=true;shell.classList.add('is-unlocked');fireTransition.classList.remove('is-running');auth.classList.remove('is-leaving');if(previousFocus?.focus)previousFocus.focus({preventScroll:true});},1250);
+        window.setTimeout(()=>{auth.hidden=true;shell.classList.add('is-unlocked');fireTransition.classList.remove('is-running');auth.classList.remove('is-leaving');document.getElementById('main-content')?.focus({preventScroll:true});},1250);
     }
     function replay(){auth.hidden=true;shell.classList.remove('is-unlocked');startIntro();}
     document.getElementById('intro-continue')?.addEventListener('click',impact);
