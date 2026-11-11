@@ -58,7 +58,7 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 ### Frontend
 - HTML5 com Jinja2
 - CSS3 puro, com variáveis, Flexbox e Grid
-- JavaScript Vanilla
+- JavaScript ES Modules (Three.js para a abertura 3D)
 - Fetch API
 - Socket.IO Client (a integrar quando a funcionalidade em tempo real for implementada)
 
@@ -67,9 +67,9 @@ O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A p
 - Neon PostgreSQL
 - SQLite como alternativa local para desenvolvimento inicial
 
-### Autenticação planejada
-- Google OAuth2
-- Discord OAuth2
+### Autenticação
+- Tela de entrada visual para Google e Discord (provedores ainda desabilitados até a integração OAuth segura).
+- Google OAuth2 e Discord OAuth2 permanecem pendentes no backend.
 
 ## 🏗️ Estrutura atual
 
@@ -190,13 +190,14 @@ O projeto está em fase inicial de desenvolvimento.
 ### Implementado
 - Aplicação Flask com Application Factory, extensões e configuração por ambiente.
 - Modelos iniciais para usuários, participantes, torneios, equipes, inscrições, fases, partidas e resultados.
-- Homepage responsiva com identidade visual cinematográfica original.
-- Intro de entrada com cartão animado, selo Bazinga, partículas, flash e transição de fogo estilizada.
-- Controles para pular e rever a intro; preferência por movimento reduzido e foco acessível.
+- Homepage responsiva em formato de hub gamer, com navegação lateral, destaques e estados vazios sem dados fictícios.
+- Abertura cinematográfica com carta construída em Three.js, anúncio tipográfico, cortinas teatrais e passagem para a tela de entrada.
+- Transição de barreira de fogo da tela de entrada para a homepage (prévia de visitante).
+- Controles de pular/rever e respeito a movimento reduzido.
 - Testes básicos da aplicação e da presença dos controles da intro.
 
 ### Em desenvolvimento / planejado
-- Autenticação Google e Discord.
+- Integração real dos fluxos OAuth Google e Discord (credenciais e callbacks).
 - Criação e administração de torneios e inscrições.
 - Geração de chaveamentos, partidas e progressão entre fases.
 - Rankings, estatísticas, perfis e Hall da Fama alimentados pelo banco.
