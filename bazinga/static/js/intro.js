@@ -8,10 +8,22 @@
     const sparks = document.getElementById('intro-sparks');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const storageKey = 'ubc-intro-seen-v1';
+    const backgroundRegions = [
+        document.querySelector('.site-header'),
+        document.getElementById('main-content'),
+        document.querySelector('.site-footer')
+    ].filter(Boolean);
     let revealTimer = null;
-    let finishTimer = null;
+    let hideTimer = null;
+    let previouslyFocused = null;
 
     if (!overlay || !enterButton || !skipButton || !replayButton) return;
+
+    function setBackgroundInert(isInert) {
+        backgroundRegions.forEach((region) => {
+            region.inert = isInert;
+        });
+    }
 
     function createSparks() {
         if (!sparks || reducedMotion.matches) return;
@@ -29,16 +41,20 @@
 
     function closeIntro() {
         window.clearTimeout(revealTimer);
-        window.clearTimeout(finishTimer);
+        window.clearTimeout(hideTimer);
         overlay.classList.remove('is-revealing');
         overlay.classList.add('is-done');
         overlay.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('intro-enabled');
         document.body.classList.add('intro-complete');
+        setBackgroundInert(false);
         try { window.sessionStorage.setItem(storageKey, '1'); } catch (_) { /* Storage can be unavailable. */ }
-        window.setTimeout(() => {
+        hideTimer = window.setTimeout(() => {
             overlay.classList.remove('is-done');
             overlay.hidden = true;
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                previouslyFocused.focus({ preventScroll: true });
+            }
         }, 700);
     }
 
@@ -54,14 +70,17 @@
 
     function openIntro() {
         window.clearTimeout(revealTimer);
-        window.clearTimeout(finishTimer);
+        window.clearTimeout(hideTimer);
+        previouslyFocused = document.activeElement;
         overlay.hidden = false;
         overlay.classList.remove('is-done', 'is-revealing');
         overlay.setAttribute('aria-hidden', 'false');
         enterButton.disabled = false;
+        setBackgroundInert(true);
         document.body.classList.add('intro-enabled');
         document.body.classList.remove('intro-complete');
         createSparks();
+        enterButton.focus({ preventScroll: true });
         if (reducedMotion.matches) {
             revealTimer = window.setTimeout(closeIntro, 1000);
         }
