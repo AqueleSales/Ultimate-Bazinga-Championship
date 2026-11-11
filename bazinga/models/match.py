@@ -112,6 +112,7 @@ class MatchResult(db.Model):
         nullable=False,
     )
     notes = db.Column(db.Text, nullable=True)
+    final_scores = db.Column(db.JSON, nullable=False, default=dict)
     finalized_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
