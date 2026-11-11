@@ -374,3 +374,39 @@ A partir desta entrega, as informações abaixo substituem os itens antigos dest
 2. Se necessário, criar arte original dedicada para o selo/cartão e efeitos de partículas mais ricos.
 3. Integrar os cartões do dashboard a consultas reais quando rotas e regras de negócio existirem.
 4. Implementar os módulos de torneios e partidas antes de apresentar números ou resultados como dados reais.
+
+
+## 14. Direção atualizada — abertura 3D, autenticação e hub gamer
+
+Esta seção substitui decisões visuais anteriores que descreviam a primeira intro CSS como solução final.
+
+### Referências oficiais do responsável pelo projeto
+- A logo oficial da Bazinga é a **segunda imagem enviada pelo usuário**: mascote verde com chapéu de fogo, contorno branco e lettering Bazinga. Não substituir por outras imagens, mascotes ou letras inventadas. A imagem de referência ainda precisa ser adicionada ao repositório como asset em `bazinga/static/img/bazinga-logo.png` antes de ser exibida no site.
+- A estética deve remeter à energia e ao espetáculo de revelação de personagem de Super Smash Bros. (2014/2018), sem copiar assets, personagens, logotipos ou composições proprietárias.
+- A homepage usa como referência de organização e densidade visual o projeto Good Games do Behance indicado pelo usuário. A implementação deve ser original.
+- Não fixar a paleta da plataforma no verde do mascote. O logo pode manter seu verde original; a interface pode usar outras cores coerentes com a direção artística.
+
+### Fluxo de experiência implementado na branch
+1. Fundo preto e canvas WebGL.
+2. Carta/envelope 3D com geometria, iluminação direcional, luzes de recorte, profundidade e partículas.
+3. Ação de impacto aciona a revelação tipográfica de “ULTIMATE BAZINGA CHAMPIONSHIP BROS.”.
+4. Cortinas vermelhas fecham a cena.
+5. Abre uma tela de entrada com opções visuais Google e Discord.
+6. A tela de entrada oferece uma prévia de visitante; a passagem para a homepage usa uma barreira de fogo.
+7. Homepage com sidebar, barra superior, abas, destaques e cartões de módulos ainda sem dados.
+
+### Implementação técnica
+- `bazinga/static/js/intro.js`: ES module com import dinâmico de Three.js via CDN; fallback de abertura caso WebGL/Three.js não inicialize; animação de carta, partículas, estados de cena, cortinas e transição para homepage.
+- `bazinga/templates/base.html`: canvas 3D, overlay de anúncio, tela de entrada e camada de transição.
+- `bazinga/templates/championship.html`: hub gamer inspirado em referências de interface competitiva, com conteúdo placeholder claramente indicado.
+- `bazinga/static/css/style.css`: identidade teatral para abertura/login e layout responsivo do hub.
+
+### Limitações e próximos passos obrigatórios
+- Os botões Google e Discord estão deliberadamente desabilitados. Não existe ainda fluxo OAuth no backend; não simular login nem afirmar que autenticação funciona.
+- A entrada de visitante é uma prévia de interface, não uma sessão autenticada.
+- O selo 3D atual é uma peça provisória geométrica. Não declarar que ele já usa a logo oficial: adicionar a imagem original do usuário ao repositório e integrá-la como textura/material do selo assim que o asset estiver disponível.
+- A transição de fogo atual é uma composição visual CSS; evoluir para partículas/canvas/WebGL se o teste visual justificar.
+- Validar no navegador desktop/mobile, testar com WebGL indisponível e verificar foco, teclado, leitor de tela e `prefers-reduced-motion`.
+- A CDN Three.js e Google Fonts dependem de conexão externa. Avaliar hospedagem local/versionada para produção.
+- Executar `python -m pytest` e adicionar teste de navegador para os estados da abertura antes de considerar a entrega validada.
+
