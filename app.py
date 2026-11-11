@@ -1,3 +1,5 @@
+import os
+
 from bazinga import create_app
 from bazinga.extensions import socketio
 
@@ -9,5 +11,5 @@ if __name__ == "__main__":
         app,
         debug=app.config["DEBUG"],
         host="127.0.0.1",
-        port=int(__import__("os").getenv("PORT", "5000")),
+        port=int(os.getenv("PORT", "5000")),
     )
