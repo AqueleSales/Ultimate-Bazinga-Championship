@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17151f">
+    <title>{% block title %}Ultimate Bazinga Championship{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('main.championship_home') }}">
+            <span class="brand-mark">B</span>
+            <span>Bazinga <strong>Championship</strong></span>
+        </a>
+        <span class="header-label">ULTIMATE CHAMPIONSHIP</span>
+    </header>
+
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <span>Bazinga Hub</span>
+        <span>Ultimate Bazinga Championship</span>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
