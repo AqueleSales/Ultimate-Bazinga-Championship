@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Ultimate Bazinga Championship | Bazinga Hub{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">BAZINGA HUB APRESENTA</p>
+    <h1>Ultimate Bazinga <span>Championship</span></h1>
+    <p class="hero-description">
+        O ponto de encontro das competições Bazinga. Acompanhe campeonatos,
+        confrontos e resultados em um só lugar.
+    </p>
+    <div class="hero-actions">
+        <a class="button button-primary" href="#championship-info">Conhecer o campeonato</a>
+        <span class="status-pill"><span class="status-dot"></span> Plataforma em desenvolvimento</span>
+    </div>
+</section>
+
+<section class="content-section" id="championship-info">
+    <div class="section-heading">
+        <p class="eyebrow">O ECOSSISTEMA COMPETITIVO</p>
+        <h2>Uma nova forma de competir.</h2>
+        <p>Organização, partidas e histórico preparados para diferentes formatos de campeonato.</p>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature-card">
+            <span class="feature-number">01</span>
+            <h3>Campeonatos flexíveis</h3>
+            <p>Competições individuais ou por equipes, com fases e formatos configuráveis.</p>
+        </article>
+        <article class="feature-card">
+            <span class="feature-number">02</span>
+            <h3>Partidas em tempo real</h3>
+            <p>Placar e andamento das partidas sincronizados para quem acompanha o evento.</p>
+        </article>
+        <article class="feature-card">
+            <span class="feature-number">03</span>
+            <h3>Histórico permanente</h3>
+            <p>Perfis competitivos, rankings, títulos e retrospectivas de cada edição.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
