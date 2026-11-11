@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
+let THREE = null;
 
 (() => {
     'use strict';
@@ -45,8 +45,9 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
         return group;
     }
 
-    function init3D() {
+    async function init3D() {
         try {
+            THREE = await import('https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js');
             renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
             renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.7));
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -82,7 +83,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
         renderer.render(scene,camera);
     }
 
-    function revealTitle(){if(phase==='title')return;phase='title';title.classList.add('is-visible');intro.classList.add('is-title');}
+    function revealTitle(){if(phase==='title')return;phase='title';title.classList.add('is-visible');intro.classList.add('is-title');window.setTimeout(openAuth,2050);}
     function startIntro(){
         previousFocus=document.activeElement;intro.classList.add('is-active');intro.setAttribute('aria-hidden','false');
         document.body.classList.add('intro-lock');phase='arrival';startedAt=performance.now();clock.start();
@@ -99,6 +100,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
         try{sessionStorage.setItem(storageKey,'1');}catch(_){}
     }
     function closeCurtainsToHome(){
+        try{sessionStorage.setItem('ubc-preview-unlocked-v1','1');}catch(_){}
         auth.classList.add('is-leaving');fireTransition.classList.add('is-running');
         window.setTimeout(()=>{auth.hidden=true;shell.classList.add('is-unlocked');fireTransition.classList.remove('is-running');auth.classList.remove('is-leaving');if(previousFocus?.focus)previousFocus.focus({preventScroll:true});},1250);
     }
@@ -107,7 +109,14 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
     document.getElementById('intro-skip')?.addEventListener('click',openAuth);
     document.getElementById('guest-entry')?.addEventListener('click',closeCurtainsToHome);
     document.getElementById('replay-intro')?.addEventListener('click',replay);
-    if(init3D()) { if(!reducedMotion.matches) startIntro(); else { intro.classList.add('is-active','is-static');revealTitle();document.getElementById('intro-controls')?.classList.add('is-visible');phase='title'; } }
-    else { startIntro(); }
+    (async () => {
+        let seen = false, previewUnlocked = false;
+        try { seen = sessionStorage.getItem(storageKey) === '1'; previewUnlocked = sessionStorage.getItem('ubc-preview-unlocked-v1') === '1'; } catch (_) {}
+        if (previewUnlocked) { shell.classList.add('is-unlocked'); auth.hidden = true; return; }
+        if (seen) { auth.hidden = false; return; }
+        const ready = await init3D();
+        if (reducedMotion.matches) { startIntro(); }
+        else { startIntro(); if (!ready) { document.getElementById('intro-controls')?.classList.add('is-visible'); } }
+    })();
     window.UBCTransition={revealHome:closeCurtainsToHome};
 })();
