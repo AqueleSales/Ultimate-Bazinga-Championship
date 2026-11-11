@@ -335,3 +335,42 @@ Antes de alterar código:
 ---
 
 **Princípio central:** entender antes de alterar; preservar o que funciona; implementar somente o que pode ser testado; manter a experiência UBC cinematográfica, acessível e rápida.
+
+
+## 13. Estado atualizado após a implementação da primeira intro (branch feature/cinematic-intro-dashboard)
+
+A partir desta entrega, as informações abaixo substituem os itens antigos deste documento que descreviam a intro como inexistente.
+
+### Implementado nesta branch
+
+- `bazinga/templates/base.html`: overlay de intro, navegação principal, skip link e inclusão do JavaScript.
+- `bazinga/templates/championship.html`: landing page com hero cinematográfico e cartões de módulos futuros em estado vazio.
+- `bazinga/static/css/style.css`: identidade visual escura com acentos âmbar/fogo, layout responsivo e animações CSS.
+- `bazinga/static/js/intro.js`: controle de primeira exibição por sessão, pular, rever, partículas leves, transição de revelação, foco e inert nos elementos de fundo.
+- `tests/test_health.py`: teste de presença dos elementos essenciais da intro.
+- `README.md`: estrutura e status atualizados.
+
+### Comportamento da intro
+
+- A intro aparece automaticamente uma vez por sessão do navegador, exceto quando o usuário solicita movimento reduzido.
+- O cartão original do UBC entra em cena com desaceleração.
+- A ação “Revelar campeonato” aciona impacto luminoso e wipe de fogo estilizado.
+- “Pular introdução” fecha a camada imediatamente.
+- “Rever intro” permite abrir a experiência novamente.
+- O conteúdo de fundo recebe `inert` enquanto a intro está aberta; o foco vai para o botão principal e retorna ao elemento anterior ao fechar.
+- Se JavaScript não executar, o overlay permanece oculto por padrão e o conteúdo principal continua acessível.
+- Não há áudio automático nem dependência de assets protegidos de terceiros.
+
+### Limites desta entrega
+
+- Os cartões de partidas, ranking e Hall da Fama são placeholders explicitamente identificados; não há dados reais conectados.
+- A transição de fogo é uma composição CSS original, não um vídeo ou simulação física de chamas.
+- O teste adicionado valida a renderização dos elementos HTML, mas não substitui teste visual em navegador nem teste automatizado de interação.
+- Os testes ainda precisam ser executados em ambiente Python com as dependências instaladas.
+
+### Próximas tarefas recomendadas
+
+1. Fazer revisão visual em desktop e mobile e ajustar timing/escala conforme o feedback.
+2. Se necessário, criar arte original dedicada para o selo/cartão e efeitos de partículas mais ricos.
+3. Integrar os cartões do dashboard a consultas reais quando rotas e regras de negócio existirem.
+4. Implementar os módulos de torneios e partidas antes de apresentar números ou resultados como dados reais.
