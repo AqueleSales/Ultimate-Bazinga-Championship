@@ -134,8 +134,10 @@ source .venv/bin/activate
 ### 3. Instalar dependências
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+
+Para instalar apenas as dependências de execução em um ambiente de produção, use `pip install -r requirements.txt`.
 
 ### 4. Configurar variáveis de ambiente
 
