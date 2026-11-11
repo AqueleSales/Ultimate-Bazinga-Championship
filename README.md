@@ -1,142 +1,198 @@
-# 🏆 Bazinga Hub — Ultimate Bazinga Championship
+# 🏆 Ultimate Bazinga Championship
 
-> Uma plataforma web interativa para organizar, gerenciar e acompanhar o Ultimate Bazinga Championship.
+> Plataforma web para organizar, gerenciar e acompanhar as competições do ecossistema Bazinga.
 
-## 📖 Sobre o Projeto
-
-O **Bazinga Hub** é uma plataforma web desenvolvida para integrar o ecossistema Bazinga, oferecendo ferramentas para gerenciamento e acompanhamento de campeonatos.
-
-Seu principal módulo é o **Ultimate Bazinga Championship**, um ambiente dedicado à organização de competições, visualização de confrontos, acompanhamento de partidas e transmissão de eventos em tempo real.
-
-O projeto busca oferecer uma experiência moderna, intuitiva e responsiva, inspirada em plataformas como Discord, com uma identidade visual própria.
+O **Ultimate Bazinga Championship** é o módulo competitivo do Bazinga Hub. A plataforma foi planejada para administrar campeonatos individuais e por equipes, acompanhar partidas em tempo real e preservar o histórico competitivo dos participantes.
 
 ## 🎯 Objetivos
 
-- Centralizar o gerenciamento dos campeonatos.
-- Facilitar a organização de participantes e partidas.
-- Exibir confrontos e resultados de maneira intuitiva.
-- Permitir o acompanhamento de partidas em tempo real.
-- Integrar diferentes funcionalidades ao ecossistema Bazinga.
-- Proporcionar uma experiência acessível em computadores e dispositivos móveis.
+- Centralizar a organização de campeonatos.
+- Permitir diferentes formatos de competição sem alterar o código.
+- Gerenciar participantes, equipes, fases e partidas.
+- Atualizar placares em tempo real.
+- Manter histórico, estatísticas, rankings e retrospectivas.
+- Oferecer uma interface responsiva com identidade visual própria.
 
-## 🚀 Funcionalidades
+## 🧩 Funcionalidades planejadas
 
-### 🏠 Landing Page
-- Apresentação do campeonato.
-- Informações sobre o evento.
-- Cronograma e calendário.
-- Destaques e partidas importantes.
+### Campeonatos
+- Competições individuais e por equipes.
+- Mata-mata simples e duplo.
+- Fase de grupos.
+- Pontos corridos.
+- Formatos híbridos, como grupos seguidos de eliminatórias.
+- Fases configuráveis pelo organizador.
 
-### ⚔️ Sistema de Confrontos
-- Visualização de chaveamentos.
-- Organização de torneios eliminatórios.
-- Suporte à organização de fases de grupos.
-- Identificação de equipes e participantes.
-- Atualização dos confrontos conforme os resultados.
+### Partidas
+- Chaveamento e confrontos.
+- Gerenciamento de partidas e horários.
+- Placar atualizado em tempo real.
+- Registro de resultados oficiais.
 
-### 📊 Placar em Tempo Real
-- Atualização dinâmica das pontuações.
-- Sincronização entre usuários conectados.
-- Acompanhamento do andamento das partidas.
-- Comunicação em tempo real.
+### Participantes e histórico
+- Perfil competitivo permanente.
+- Participação em vários campeonatos, inclusive edições antigas.
+- Histórico de partidas e resultados.
+- Estatísticas individuais e por equipe.
+- Rankings com critérios configuráveis.
+- Retrospectivas e Hall da Fama.
 
-### 📺 Painel de Transmissão
-- Integração com transmissões externas.
-- Incorporação de streams.
-- Exibição de partidas e informações relacionadas.
-- Interface organizada para acompanhamento dos eventos.
+### Administração
+- Organizador e administradores por campeonato.
+- Permissões específicas por função.
+- Gerenciamento de inscrições, fases e resultados.
 
-## 🛠️ Tecnologias
+### Transmissão
+- Área para incorporar transmissões externas.
+- Painel com informações da partida em destaque.
 
-A arquitetura tecnológica ainda poderá ser ajustada conforme as necessidades do projeto.
+## 🛠️ Stack
+
+### Backend
+- Python
+- Flask
+- Flask-SQLAlchemy / SQLAlchemy
+- Flask-Migrate
+- Flask-SocketIO
 
 ### Frontend
-- HTML5
-- CSS3
+- HTML5 com Jinja2
+- CSS3 puro, com variáveis, Flexbox e Grid
 - JavaScript Vanilla
 - Fetch API
 - Socket.IO Client
 
-### Backend
-A tecnologia de backend será definida considerando desempenho, simplicidade, facilidade de manutenção e integração com o restante do ecossistema.
+### Banco de dados
+- PostgreSQL
+- Neon PostgreSQL
+- SQLite como alternativa local para desenvolvimento inicial
 
-Possibilidades em avaliação:
-- Python com Flask.
-- Python com FastAPI.
-- Outras alternativas leves e adequadas à aplicação.
+### Autenticação planejada
+- Google OAuth2
+- Discord OAuth2
 
-### Banco de Dados
-- PostgreSQL.
-- Neon (PostgreSQL Serverless).
+## 🏗️ Estrutura atual
 
-### Autenticação
-- Google OAuth2.
-- Discord OAuth2.
+```text
+.
+├── app.py
+├── config.py
+├── requirements.txt
+├── .env.example
+├── .gitignore
+├── bazinga/
+│   ├── __init__.py
+│   ├── extensions.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   ├── participant.py
+│   │   ├── tournament.py
+│   │   └── match.py
+│   ├── routes/
+│   │   └── main.py
+│   ├── services/
+│   ├── sockets/
+│   ├── templates/
+│   │   ├── base.html
+│   │   └── championship.html
+│   └── static/
+│       └── css/
+│           └── style.css
+└── tests/
+    ├── conftest.py
+    └── test_health.py
+```
 
-## 🎨 Identidade Visual
+A aplicação utiliza o padrão **Application Factory**. Rotas, modelos, serviços e eventos em tempo real ficam separados para evitar concentrar toda a lógica em um único arquivo.
 
-A interface utiliza como referência visual plataformas modernas de comunicação e comunidades gamer.
+## 💻 Executar localmente
 
-Principais características:
-- Dark Mode.
-- Tons de cinza escuro e roxo.
-- Componentes com bordas arredondadas.
-- Layout responsivo.
-- Hierarquia visual clara.
-- Animações e interações discretas.
+### 1. Clonar o repositório
 
-A implementação visual utiliza CSS puro, sem dependência de frameworks como Bootstrap ou Tailwind CSS.
+```bash
+git clone https://github.com/AqueleSales/Ultimate-Bazinga-Championship.git
+cd Ultimate-Bazinga-Championship
+```
 
-## 🏗️ Arquitetura do Projeto
+### 2. Criar e ativar um ambiente virtual
 
-O projeto busca manter uma estrutura modular, separando responsabilidades:
+Windows:
 
-- **Frontend:** apresentação, navegação e interações.
-- **Backend:** regras de negócio, autenticação e processamento.
-- **Banco de dados:** persistência de usuários, campeonatos e partidas.
-- **Comunicação em tempo real:** sincronização de informações entre clientes.
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
 
-A estrutura definitiva será documentada conforme a arquitetura implementada.
+Linux/macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Instalar dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configurar variáveis de ambiente
+
+Crie um arquivo local chamado `.env`, usando `.env.example` como referência.
+
+- `SECRET_KEY`: chave secreta da aplicação.
+- `DATABASE_URL`: conexão PostgreSQL do Neon. Se omitida, a aplicação usa SQLite local.
+- Credenciais OAuth: serão necessárias quando a autenticação for implementada.
+
+Nunca envie o arquivo `.env` ao GitHub.
+
+### 5. Executar
+
+```bash
+python app.py
+```
+
+A aplicação ficará disponível em `http://127.0.0.1:5000`.
+
+## 🗃️ Migrações do banco
+
+Depois de configurar o banco de dados:
+
+```bash
+flask --app app db init
+flask --app app db migrate -m "Initial database schema"
+flask --app app db upgrade
+```
+
+As migrações geradas devem ser versionadas no Git. Em ambientes já inicializados, não execute novamente `db init`.
+
+## 🧪 Testes
+
+```bash
+pytest
+```
+
+Os testes utilizam SQLite em memória e não precisam acessar o banco de produção.
 
 ## 🔐 Segurança
 
-A aplicação deverá considerar:
+- Segredos ficam em variáveis de ambiente.
+- O arquivo `.env` é ignorado pelo Git.
+- A chave secreta não possui valor padrão inseguro.
+- Operações administrativas e alterações oficiais de placar devem ser validadas no servidor.
+- O cliente Socket.IO não será autoridade sobre resultados oficiais.
 
-- Autenticação segura.
-- Controle de sessões.
-- Proteção de rotas administrativas.
-- Validação de dados no servidor.
-- Proteção de credenciais e variáveis de ambiente.
-- Controle de permissões dos usuários.
+## 📌 Status
 
-## 📌 Status do Projeto
+O projeto está em fase inicial de estruturação. A aplicação Flask, a organização modular, os primeiros modelos e a página inicial estão sendo preparados. Autenticação, regras de torneio, gerenciamento administrativo, rankings e eventos de placar ainda serão implementados e testados.
 
-<details>
-<summary>Visualizar planejamento</summary>
+## 👥 Projeto
 
-- [ ] Estrutura principal da plataforma.
-- [ ] Sistema de autenticação.
-- [ ] Landing Page do campeonato.
-- [ ] Sistema de gerenciamento de campeonatos.
-- [ ] Sistema de chaveamento.
-- [ ] Gerenciamento de partidas.
-- [ ] Placar em tempo real.
-- [ ] Painel de transmissão.
-- [ ] Responsividade para dispositivos móveis.
-- [ ] Integração completa com o ecossistema Bazinga.
-
-</details>
-
-## 🔮 Visão Futura
-
-O Bazinga Hub pretende evoluir para uma plataforma integrada de gerenciamento de competições, com possibilidade de expansão para novos formatos de torneios, funcionalidades sociais e ferramentas administrativas.
-
-## 👥 Desenvolvimento
-
-**Projeto:** Bazinga Hub  
-**Módulo principal:** Ultimate Bazinga Championship  
-**Categoria:** Plataforma Web / Gerenciamento de Campeonatos
+- **Nome:** Ultimate Bazinga Championship
+- **Ecossistema:** Bazinga Hub
+- **Categoria:** Plataforma web de gerenciamento de competições
 
 ---
 
-*Bazinga Hub — Mais do que acompanhar uma competição, fazer parte dela.*
+*Bazinga — Mais do que acompanhar uma competição, fazer parte dela.*
