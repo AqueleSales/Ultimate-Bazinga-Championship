@@ -14,6 +14,17 @@ def test_homepage_loads(client):
     assert response.status_code == 200
     assert b"Ultimate Bazinga" in response.data
 
+
+def test_homepage_includes_accessible_cinematic_intro(client):
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert b'id="cinematic-intro"' in response.data
+    assert b'id="intro-skip"' in response.data
+    assert b'id="replay-intro"' in response.data
+    assert b"prefers-reduced-motion" not in response.data
+
+
 def test_participant_can_join_multiple_tournaments(app):
     from sqlalchemy.orm import configure_mappers
 
