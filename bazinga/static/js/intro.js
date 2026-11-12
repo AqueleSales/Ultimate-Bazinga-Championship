@@ -425,30 +425,66 @@
   document.getElementById('replay-intro')?.addEventListener('click', startIntro);
 
   (async () => {
-    let entered = false;
-    try { entered = sessionStorage.getItem('ubc-hub-entered-v1') === '1'; } catch (_) {}
-    if (entered && auth.dataset.authenticated !== 'true') {
-      shell.classList.add('is-unlocked');
+    const requestedScreen = new URLSearchParams(window.location.search).get('screen');
+    const isHomePage = window.location.pathname === '/';
+
+    // Subpages are real application pages, not part of the cinematic/login flow.
+    // This prevents every competition button from replaying the login screen.
+    if (!isHomePage) {
+      phase = 'auth';
+      intro.classList.remove('is-active');
+      intro.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
       auth.hidden = true;
+      shell.classList.add('is-unlocked');
       return;
     }
-    const requestedScreen = new URLSearchParams(window.location.search).get('screen');
-    if (auth.dataset.authenticated === 'true' || requestedScreen === 'auth') {
+
+    // OAuth returns to /?screen=hub. Show a short welcome, then enter automatically.
+    if (requestedScreen === 'hub' && auth.dataset.authenticated === 'true') {
       phase = 'auth';
       intro.classList.remove('is-active');
       intro.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('intro-lock');
       auth.hidden = false;
       auth.classList.add('is-entering');
-      if (auth.dataset.authenticated === 'true') {
-        // Keep the welcome transition brief, then open the hub automatically.
-        authTimer = window.setTimeout(enterHub, 3000);
-      }
+      authTimer = window.setTimeout(enterHub, 3000);
       return;
     }
+
+    // A signed-in user refreshing the homepage is already authenticated: no login
+    // screen, no replayed intro, and no extra confirmation button.
+    if (auth.dataset.authenticated === 'true') {
+      phase = 'auth';
+      intro.classList.remove('is-active');
+      intro.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
+      auth.hidden = true;
+      shell.classList.add('is-unlocked');
+      return;
+    }
+
+    // Logout and explicit login navigation should show the provider choices directly.
+    if (requestedScreen === 'auth') {
+      phase = 'auth';
+      intro.classList.remove('is-active');
+      intro.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
+      auth.hidden = false;
+      auth.classList.add('is-entering');
+      return;
+    }
+
+    let entered = false;
+    try { entered = sessionStorage.getItem('ubc-hub-entered-v1') === '1'; } catch (_) {}
+    if (entered) {
+      shell.classList.add('is-unlocked');
+      auth.hidden = true;
+      return;
+    }
+
     await init3D();
     startIntro();
   })();
-
   window.UBCTransition = { revealHome: enterHub, replay: startIntro };
 })();
