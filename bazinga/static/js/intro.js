@@ -309,6 +309,7 @@
     shell.classList.remove('is-unlocked');
     intro.classList.remove('is-title', 'is-impact', 'is-static', 'is-card-ready', 'is-opening');
     title?.classList.remove('is-visible');
+    document.getElementById('intro-fallback-card')?.classList.remove('is-exploding');
     controls?.classList.remove('is-visible');
     intro.classList.add('is-active');
     intro.setAttribute('aria-hidden', 'false');
