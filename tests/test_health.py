@@ -75,3 +75,38 @@ def test_oauth_landing_preserves_authenticated_entry_screen(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b"id=\"guest-entry\"" not in response.data
+
+
+def test_oauth_provider_buttons_are_enabled_when_credentials_are_present():
+    from bazinga import create_app
+    from bazinga.extensions import db
+
+    class OAuthTestConfig:
+        TESTING = True
+        SECRET_KEY = "test-secret-key"
+        SQLALCHEMY_DATABASE_URI = "sqlite://"
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+        GOOGLE_CLIENT_ID = "google-test-client"
+        GOOGLE_CLIENT_SECRET = "google-test-secret"
+        DISCORD_CLIENT_ID = "discord-test-client"
+        DISCORD_CLIENT_SECRET = "discord-test-secret"
+
+    application = create_app(OAuthTestConfig)
+    with application.app_context():
+        db.create_all()
+        response = application.test_client().get("/")
+        assert response.status_code == 200
+        assert b'href="/auth/google"' in response.data
+        assert b'href="/auth/discord"' in response.data
+        db.session.remove()
+        db.drop_all()
+
+
+def test_oauth_login_routes_return_provider_specific_setup_message_when_unconfigured(client):
+    google = client.get("/auth/google")
+    discord = client.get("/auth/discord")
+    assert google.status_code == 503
+    assert b"Google" in google.data
+    assert discord.status_code == 503
+    assert b"Discord" in discord.data

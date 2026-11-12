@@ -20,7 +20,8 @@ def _provider(name):
 def google_login():
     client = _provider("google")
     callback = url_for("auth.google_callback", _external=True)
-    return client.authorize_redirect(callback)
+    # Ask Google to show the account chooser instead of silently reusing a session.
+    return client.authorize_redirect(callback, prompt="select_account")
 
 
 @auth_bp.get("/google/callback")
@@ -75,16 +76,29 @@ def _sign_in(provider, provider_id, name, email, avatar_url):
         user = account.user
         if not user.is_active:
             abort(403, description="Esta conta está desativada.")
+        # Refresh public profile fields from the provider on each successful login.
+        user.name = (name or user.name or "Competidor")[:120]
+        user.email = email or user.email
+        user.avatar_url = avatar_url or user.avatar_url
     else:
+        # Do not auto-link identities by email: only the provider's immutable ID
+        # proves ownership of this OAuth identity.
         user = User(name=(name or "Competidor")[:120], email=email, avatar_url=avatar_url)
-        account = OAuthAccount(provider=provider, provider_user_id=provider_id, email=email, user=user)
+        account = OAuthAccount(
+            provider=provider,
+            provider_user_id=provider_id,
+            email=email,
+            user=user,
+        )
         db.session.add(user)
         db.session.add(account)
-        db.session.commit()
 
+    db.session.commit()
+    # Rotate the session after authentication to avoid session fixation.
     session.clear()
     session["user_id"] = user.id
     session["auth_provider"] = provider
+    session.permanent = True
     return redirect(url_for("main.championship_home"))
 
 

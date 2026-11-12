@@ -19,12 +19,38 @@ python -m venv .venv
 pip install -r requirements-dev.txt
 ```
 
-Crie um arquivo `.env` baseado em `.env.example` e defina um `SECRET_KEY` aleatório. Para ativar os logins, configure aplicações OAuth no Google Cloud Console e no Discord Developer Portal e cadastre os callbacks:
+Crie um arquivo `.env` baseado em `.env.example` e defina um `SECRET_KEY` aleatório. Os botões Google e Discord já estão ligados às rotas OAuth; eles ficam desabilitados até as credenciais correspondentes serem preenchidas.
 
-- Google: `http://127.0.0.1:5000/auth/google/callback`
-- Discord: `http://127.0.0.1:5000/auth/discord/callback`
+### Google OAuth (Google Cloud Console)
 
-Preencha `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `DISCORD_CLIENT_ID` e `DISCORD_CLIENT_SECRET`. Sem credenciais, os provedores aparecem desabilitados e a entrada de visitante continua disponível. Nunca compartilhe nem versione o arquivo `.env`.
+1. Abra [Google Cloud Console](https://console.cloud.google.com/), crie ou selecione um projeto.
+2. Configure a tela de consentimento OAuth (Audience/Branding) e adicione sua conta como usuário de teste se o app estiver em modo de teste.
+3. Crie um OAuth Client ID do tipo **Web application**.
+4. Em **Authorized JavaScript origins**, adicione `http://127.0.0.1:5000`.
+5. Em **Authorized redirect URIs**, adicione exatamente `http://127.0.0.1:5000/auth/google/callback`.
+6. Copie o Client ID e o Client Secret para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
+
+### Discord OAuth
+
+1. Abra o [Discord Developer Portal](https://discord.com/developers/applications) e crie uma Application.
+2. Entre em **OAuth2** e adicione o redirect URI `http://127.0.0.1:5000/auth/discord/callback`.
+3. Copie o Client ID e gere/copiei o Client Secret para `DISCORD_CLIENT_ID` e `DISCORD_CLIENT_SECRET`.
+4. O login solicita os escopos `identify` e `email`; não precisa de bot nem permissões de servidor.
+
+### Variáveis de ambiente
+
+Preencha no seu `.env` local:
+
+```dotenv
+GOOGLE_CLIENT_ID=seu-client-id-google
+GOOGLE_CLIENT_SECRET=seu-client-secret-google
+DISCORD_CLIENT_ID=seu-client-id-discord
+DISCORD_CLIENT_SECRET=seu-client-secret-discord
+```
+
+Reinicie o servidor depois de alterar o `.env`. Para produção, cadastre também os callbacks HTTPS com o domínio real, por exemplo `https://SEU-DOMINIO/auth/google/callback` e `https://SEU-DOMINIO/auth/discord/callback`, e defina `SESSION_COOKIE_SECURE=1`. O endereço cadastrado no provedor precisa corresponder exatamente ao endereço público usado pelo site.
+
+**Segurança:** nunca envie Client Secret pelo chat, não o coloque no Git e não compartilhe seu arquivo `.env`. O app associa cada conta pelo ID imutável do provedor e não une contas automaticamente só porque os e-mails coincidem.
 
 Execute `python app.py` e abra `http://127.0.0.1:5000`.
 
