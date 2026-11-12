@@ -252,7 +252,12 @@
     }
     if (!renderer || !envelope) {
       intro.classList.add('is-fallback');
-      window.setTimeout(revealTitle, 1600);
+      window.setTimeout(() => {
+        if (phase !== 'arrival') return;
+        phase = 'waiting';
+        intro.classList.add('is-card-ready');
+        showControls();
+      }, 4800);
       return;
     }
     envelope.position.set(-5, 3, -1);
