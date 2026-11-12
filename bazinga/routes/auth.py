@@ -1,7 +1,9 @@
 from urllib.parse import urljoin
 
+import hmac
+
 from authlib.integrations.base_client.errors import OAuthError
-from flask import Blueprint, abort, current_app, flash, redirect, session, url_for
+from flask import Blueprint, abort, current_app, flash, redirect, request, session, url_for
 
 from ..extensions import db, oauth
 from ..models import OAuthAccount, User
@@ -90,5 +92,9 @@ def _sign_in(provider, provider_id, name, email, avatar_url):
 
 @auth_bp.post("/logout")
 def logout():
+    expected = session.get('_csrf_token', '')
+    supplied = request.form.get('csrf_token', '')
+    if not expected or not hmac.compare_digest(expected, supplied):
+        abort(400, description='Token de segurança inválido.')
     session.clear()
     return redirect(url_for("main.championship_home"))
