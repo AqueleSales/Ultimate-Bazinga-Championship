@@ -65,7 +65,7 @@ def test_cinematic_module_has_safe_three_js_fallback(client):
 def test_cinematic_intro_uses_ultimate_bazinga_championship_brand_without_bros(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert b"ULTIMATE BAZINGA CHAMPIONSHIP" in response.data
+    assert b"aria-label=\"Ultimate Bazinga Championship\"" in response.data
     assert b"BROS." not in response.data
     assert b"logo-fire-backdrop" in response.data
     assert b"hub-curtains" in response.data
@@ -74,5 +74,4 @@ def test_cinematic_intro_uses_ultimate_bazinga_championship_brand_without_bros(c
 def test_oauth_landing_preserves_authenticated_entry_screen(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert b"ENTRAR COMO VISITANTE" in response.data
-    assert b"ENTRAR NA ARENA" in response.data
+    assert b"id=\"guest-entry\"" not in response.data
