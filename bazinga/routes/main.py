@@ -93,7 +93,25 @@ def competition_detail(tournament_id):
         .where(TournamentRegistration.tournament_id == tournament.id)
         .order_by(TournamentRegistration.registered_at.asc())
     ).all()
-    return render_template("competition_detail.html", tournament=tournament, registrations=registrations)
+    user_registration = None
+    if user:
+        participant = db.session.scalar(
+            db.select(Participant).where(Participant.linked_user_id == user.id)
+        )
+        if participant:
+            user_registration = db.session.scalar(
+                db.select(TournamentRegistration).where(
+                    TournamentRegistration.tournament_id == tournament.id,
+                    TournamentRegistration.participant_id == participant.id,
+                    TournamentRegistration.status.in_(("registered", "confirmed")),
+                )
+            )
+    return render_template(
+        "competition_detail.html",
+        tournament=tournament,
+        registrations=registrations,
+        user_registration=user_registration,
+    )
 
 
 @main_bp.post("/competitions/<int:tournament_id>/register")
