@@ -2,7 +2,6 @@ from functools import wraps
 
 from flask import Blueprint, abort, jsonify, redirect, render_template, session, url_for
 
-from flask import current_app
 from ..extensions import db
 from ..models import User
 
