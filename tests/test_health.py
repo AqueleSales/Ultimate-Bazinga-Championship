@@ -120,6 +120,7 @@ def test_module_pages_require_authentication(client):
 
 
 def test_authenticated_user_can_open_each_module_page(app, client):
+    from bazinga.extensions import db
     from bazinga.models import User
 
     with app.app_context():
