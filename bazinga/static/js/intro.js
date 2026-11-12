@@ -236,7 +236,7 @@
     window.clearTimeout(authTimer);
     auth.hidden = true;
     shell.classList.remove('is-unlocked');
-    intro.classList.remove('is-title', 'is-impact', 'is-static');
+    intro.classList.remove('is-title', 'is-impact', 'is-static', 'is-card-ready', 'is-opening');
     title?.classList.remove('is-visible');
     controls?.classList.remove('is-visible');
     intro.classList.add('is-active');
@@ -246,8 +246,9 @@
     startedAt = performance.now();
 
     if (reducedMotion.matches) {
-      intro.classList.add('is-static', 'is-fallback');
-      revealTitle();
+      intro.classList.add('is-static', 'is-fallback', 'is-card-ready');
+      phase = 'waiting';
+      showControls();
       return;
     }
     if (!renderer || !envelope) {
@@ -277,7 +278,7 @@
     if (!renderer || !envelope) {
       phase = 'opening';
       intro.classList.add('is-opening');
-      openingTimer = window.setTimeout(revealTitle, 1450);
+      openingTimer = window.setTimeout(revealTitle, reducedMotion.matches ? 0 : 1450);
       return;
     }
     phase = 'opening';
@@ -330,6 +331,12 @@
   }
 
   canvas.addEventListener('click', clickEnvelope);
+  canvas.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && phase === 'waiting') {
+      event.preventDefault();
+      impact();
+    }
+  });
   document.getElementById('intro-fallback-card')?.addEventListener('click', impact);
   document.getElementById('intro-skip')?.addEventListener('click', openAuth);
   document.getElementById('guest-entry')?.addEventListener('click', enterHub);
