@@ -500,3 +500,9 @@ body.intro-lock{overflow:hidden}
 .reveal-title.is-visible .logo-bazinga{animation:logo-drop 1s cubic-bezier(.15,.8,.2,1) .24s both}
 .reveal-title.is-visible .logo-championship{animation:logo-drop .9s cubic-bezier(.15,.8,.2,1) .38s both}
 .reveal-title.is-visible .logo-edition{animation:logo-drop .8s ease .52s both}
+
+
+.auth-flash-messages{width:100%;margin:0 0 18px}
+.auth-flash{margin:0;padding:12px 15px;border:1px solid #a94b3e;background:#3a1114;color:#ffe4d8;font-size:13px;line-height:1.5}
+.auth-flash-success{border-color:#477b5c;background:#102a1c;color:#d9f6df}
+.auth-flash-info{border-color:#8a6b36;background:#30230f;color:#ffe8bd}
