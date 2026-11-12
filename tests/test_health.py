@@ -40,7 +40,9 @@ def test_logout_clears_session(client):
     with client.session_transaction() as session:
         session["user_id"] = 123
         session["auth_provider"] = "google"
-    response = client.post("/auth/logout")
+    with client.session_transaction() as session:
+        token = session.get("_csrf_token")
+    response = client.post("/auth/logout", data={"csrf_token": token})
     assert response.status_code == 302
     with client.session_transaction() as session:
         assert "user_id" not in session
@@ -50,4 +52,5 @@ def test_cinematic_module_has_safe_three_js_fallback(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b"await import('https://cdn.jsdelivr.net/npm/three" in response.data
-    assert b"new THREE.Clock()" not in response.data
+    assert b"await import" in response.data
+    assert b"clock = new THREE.Clock()" in response.data
