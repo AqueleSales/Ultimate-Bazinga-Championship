@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 import hmac
 
 from authlib.integrations.base_client.errors import OAuthError
