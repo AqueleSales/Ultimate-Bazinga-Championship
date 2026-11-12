@@ -1,3 +1,5 @@
+import secrets
+
 from flask import Flask, session
 
 from config import Config
@@ -60,6 +62,7 @@ def create_app(config_object=Config):
             "current_user": user if user and user.is_active else None,
             "google_oauth_enabled": bool(app.config.get("GOOGLE_CLIENT_ID") and app.config.get("GOOGLE_CLIENT_SECRET")),
             "discord_oauth_enabled": bool(app.config.get("DISCORD_CLIENT_ID") and app.config.get("DISCORD_CLIENT_SECRET")),
+            "csrf_token": session.setdefault("_csrf_token", secrets.token_urlsafe(32)),
         }
 
     return app
