@@ -17,7 +17,9 @@ def test_homepage_includes_accessible_cinematic_intro(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b'id="cinematic-intro"' in response.data
+    assert b'id="intro-fallback-card"' in response.data
     assert b'id="intro-skip"' in response.data
+    assert b'ABRIR CONVITE' not in response.data
     assert b'id="replay-intro"' in response.data
     assert b'type="module"' in response.data
 
@@ -54,3 +56,4 @@ def test_cinematic_module_has_safe_three_js_fallback(client):
     assert response.status_code == 200
     assert b"await import('https://cdn.jsdelivr.net/npm/three" in response.data
     assert b"clock = new THREE.Clock()" in response.data
+    assert b"function clickEnvelope(event)" in response.data
