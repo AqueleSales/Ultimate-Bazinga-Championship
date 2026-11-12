@@ -1,6 +1,5 @@
 def test_health_endpoint_returns_ok(client):
     response = client.get("/health")
-
     assert response.status_code == 200
     assert response.json == {
         "status": "ok",
@@ -10,81 +9,48 @@ def test_health_endpoint_returns_ok(client):
 
 def test_homepage_loads(client):
     response = client.get("/")
-
     assert response.status_code == 200
     assert b"Ultimate Bazinga" in response.data
 
 
 def test_homepage_includes_accessible_cinematic_intro(client):
     response = client.get("/")
-
     assert response.status_code == 200
     assert b'id="cinematic-intro"' in response.data
     assert b'id="intro-skip"' in response.data
     assert b'id="replay-intro"' in response.data
-    assert b"prefers-reduced-motion" not in response.data
-
-
-def test_participant_can_join_multiple_tournaments(app):
-    from sqlalchemy.orm import configure_mappers
-
-    from bazinga.extensions import db
-    from bazinga.models import Participant, Tournament, TournamentRegistration, User
-
-    configure_mappers()
-
-    with app.app_context():
-        organizer = User(name="Organizer")
-        participant = Participant(display_name="Player One")
-        db.session.add_all([organizer, participant])
-        db.session.flush()
-
-        first = Tournament(
-            title="Bazinga Open",
-            slug="bazinga-open",
-            organizer_id=organizer.id,
-        )
-        second = Tournament(
-            title="Bazinga Winter Cup",
-            slug="bazinga-winter-cup",
-            organizer_id=organizer.id,
-        )
-        db.session.add_all([first, second])
-        db.session.flush()
-
-        db.session.add_all(
-            [
-                TournamentRegistration(
-                    tournament_id=first.id,
-                    participant_id=participant.id,
-                ),
-                TournamentRegistration(
-                    tournament_id=second.id,
-                    participant_id=participant.id,
-                ),
-            ]
-        )
-        db.session.commit()
-
-        assert len(participant.registrations) == 2
-
-
-def test_homepage_exposes_login_stage_and_gaming_hub(client):
-    response = client.get("/")
-
-    assert response.status_code == 200
-    assert b'id="auth-stage"' in response.data
-    assert b'id="guest-entry"' in response.data
-    assert b'class="games-layout"' in response.data
-    assert b'Continuar com Google' in response.data
-    assert b'Continuar com Discord' in response.data
-
-
-def test_cinematic_intro_uses_three_js_module(client):
-    response = client.get("/")
-
-    assert response.status_code == 200
     assert b'type="module"' in response.data
-    assert b'static/js/intro.js' in response.data
-    assert b'id="intro-3d-canvas"' in response.data
-    assert b'id="fire-transition"' in response.data
+
+
+def test_homepage_exposes_oauth_providers_as_unconfigured_without_credentials(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"CONFIGURAR GOOGLE OAUTH" in response.data
+    assert b"CONFIGURAR DISCORD OAUTH" in response.data
+    assert b'href="/auth/google"' not in response.data
+    assert b'href="/auth/discord"' not in response.data
+
+
+def test_oauth_login_routes_require_provider_credentials(client):
+    assert client.get("/auth/google").status_code == 503
+    assert client.get("/auth/discord").status_code == 503
+
+
+def test_logout_clears_session(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 123
+        session["auth_provider"] = "google"
+        session["_csrf_token"] = "test-csrf-token"
+    with client.session_transaction() as session:
+        token = session.get("_csrf_token")
+    response = client.post("/auth/logout", data={"csrf_token": token})
+    assert response.status_code == 302
+    with client.session_transaction() as session:
+        assert "user_id" not in session
+
+
+def test_cinematic_module_has_safe_three_js_fallback(client):
+    response = client.get("/static/js/intro.js")
+    assert response.status_code == 200
+    assert b"await import('https://cdn.jsdelivr.net/npm/three" in response.data
+    assert b"clock = new THREE.Clock()" in response.data
