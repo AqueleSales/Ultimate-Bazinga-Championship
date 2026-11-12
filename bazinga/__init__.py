@@ -52,6 +52,12 @@ def create_app(config_object=Config):
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
 
+    # The project currently has no Alembic migration history. Create missing
+    # tables for local development and first deployment; create_all never alters
+    # existing tables. Future schema changes should use Flask-Migrate migrations.
+    with app.app_context():
+        db.create_all()
+
     @app.context_processor
     def inject_auth_state():
         from .models import User
