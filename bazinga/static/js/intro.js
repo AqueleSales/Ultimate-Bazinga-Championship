@@ -351,6 +351,7 @@
     if (!renderer || !envelope) {
       phase = 'opening';
       intro.classList.add('is-opening');
+      document.getElementById('intro-fallback-card')?.classList.add('is-exploding');
       openingTimer = window.setTimeout(revealTitle, reducedMotion.matches ? 0 : 1450);
       return;
     }
@@ -401,7 +402,7 @@
       auth.classList.remove('is-leaving');
       document.getElementById('main-content')?.focus({ preventScroll: true });
       try { sessionStorage.setItem('ubc-hub-entered-v1', '1'); } catch (_) {}
-    }, reducedMotion.matches ? 0 : 1050);
+    }, reducedMotion.matches ? 0 : 1550);
   }
 
   canvas.addEventListener('click', clickEnvelope);
@@ -419,7 +420,7 @@
   (async () => {
     let entered = false;
     try { entered = sessionStorage.getItem('ubc-hub-entered-v1') === '1'; } catch (_) {}
-    if (entered) {
+    if (entered && auth.dataset.authenticated !== 'true') {
       shell.classList.add('is-unlocked');
       auth.hidden = true;
       return;
@@ -431,6 +432,7 @@
       document.body.classList.remove('intro-lock');
       auth.hidden = false;
       auth.classList.add('is-entering');
+      document.getElementById('guest-entry')?.focus({ preventScroll: true });
       return;
     }
     await init3D();
