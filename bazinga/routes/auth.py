@@ -21,7 +21,12 @@ def google_login():
     client = _provider("google")
     callback = url_for("auth.google_callback", _external=True)
     # Ask Google to show the account chooser instead of silently reusing a session.
-    return client.authorize_redirect(callback, prompt="select_account")
+    try:
+        return client.authorize_redirect(callback, prompt="select_account")
+    except Exception:
+        current_app.logger.exception("Falha ao iniciar OAuth do Google")
+        flash("Não foi possível iniciar o Google Login. Confira as credenciais e o terminal do servidor.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
 
 
 @auth_bp.get("/google/callback")
@@ -30,9 +35,10 @@ def google_callback():
     try:
         token = client.authorize_access_token()
         profile = token.get("userinfo") or client.userinfo()
-    except OAuthError:
-        flash("Não foi possível concluir o login com Google. Tente novamente.", "error")
-        return redirect(url_for("main.championship_home"))
+    except Exception:
+        current_app.logger.exception("Falha no callback OAuth do Google")
+        flash("O Google não conseguiu concluir a autenticação. Confira o terminal do servidor para ver o erro técnico.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
 
     provider_id = str(profile.get("sub") or "")
     if not provider_id:
@@ -44,7 +50,12 @@ def google_callback():
 def discord_login():
     client = _provider("discord")
     callback = url_for("auth.discord_callback", _external=True)
-    return client.authorize_redirect(callback)
+    try:
+        return client.authorize_redirect(callback)
+    except Exception:
+        current_app.logger.exception("Falha ao iniciar OAuth do Discord")
+        flash("Não foi possível iniciar o Discord Login. Confira as credenciais e o terminal do servidor.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
 
 
 @auth_bp.get("/discord/callback")
@@ -53,9 +64,10 @@ def discord_callback():
     try:
         token = client.authorize_access_token()
         profile = client.get("users/@me", token=token).json()
-    except (OAuthError, ValueError):
-        flash("Não foi possível concluir o login com Discord. Tente novamente.", "error")
-        return redirect(url_for("main.championship_home"))
+    except Exception:
+        current_app.logger.exception("Falha no callback OAuth do Discord")
+        flash("O Discord não conseguiu concluir a autenticação. Confira o terminal do servidor para ver o erro técnico.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
 
     provider_id = str(profile.get("id") or "")
     if not provider_id:
@@ -99,7 +111,7 @@ def _sign_in(provider, provider_id, name, email, avatar_url):
     session["user_id"] = user.id
     session["auth_provider"] = provider
     session.permanent = True
-    return redirect(url_for("main.championship_home"))
+    return redirect(url_for("main.championship_home", screen="hub"))
 
 
 @auth_bp.post("/logout")
@@ -109,4 +121,4 @@ def logout():
     if not expected or not hmac.compare_digest(expected, supplied):
         abort(400, description='Token de segurança inválido.')
     session.clear()
-    return redirect(url_for("main.championship_home"))
+    return redirect(url_for("main.championship_home", screen="auth"))
