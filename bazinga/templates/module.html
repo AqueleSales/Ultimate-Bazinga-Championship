@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ module.title }} | Ultimate Bazinga Championship{% endblock %}
+{% block content %}
+<div class="module-page">
+  <aside class="module-sidebar">
+    <a class="games-logo" href="{{ url_for('main.championship_home') }}"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a>
+    <nav class="sidebar-nav" aria-label="Navegação do campeonato">
+      <a href="{{ url_for('main.championship_home') }}"><span>◈</span> Visão geral</a>
+      <a class="{% if module_key == 'competitions' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='competitions') }}"><span>⌕</span> Campeonatos</a>
+      <a class="{% if module_key == 'matches' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='matches') }}"><span>⚔</span> Partidas</a>
+      <a class="{% if module_key == 'ranking' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='ranking') }}"><span>♜</span> Ranking</a>
+      <a class="{% if module_key == 'achievements' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='achievements') }}"><span>✧</span> Conquistas</a>
+      <a class="{% if module_key == 'community' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='community') }}"><span>♧</span> Comunidade</a>
+    </nav>
+    <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div>
+  </aside>
+  <main class="module-main">
+    <div class="module-topline"><a href="{{ url_for('main.championship_home') }}">← VOLTAR À VISÃO GERAL</a><span>ULTIMATE BAZINGA CHAMPIONSHIP</span></div>
+    <section class="module-hero">
+      <p class="games-kicker">{{ module.eyebrow }}</p>
+      <div class="module-hero-icon" aria-hidden="true">{{ module.icon }}</div>
+      <h1>{{ module.title }}</h1>
+      <h2>{{ module.subtitle }}</h2>
+      <p>{{ module.description }}</p>
+    </section>
+    <section class="module-empty">
+      <span class="feature-state">{{ module.status }}</span>
+      <div class="module-empty-icon" aria-hidden="true">{{ module.icon }}</div>
+      <h2>{{ module.empty_title }}</h2>
+      <p>{{ module.empty_description }}</p>
+      <a class="games-cta" href="{{ url_for('main.championship_home') }}">VOLTAR AO HUB <span>↗</span></a>
+    </section>
+    <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
+  </main>
+</div>
+{% endblock %}
