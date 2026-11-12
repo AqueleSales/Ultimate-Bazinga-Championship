@@ -43,6 +43,13 @@
             <p class="auth-kicker">A ARENA ESTÁ ABERTA</p>
             <h1 id="auth-title">{% if current_user %}BEM-VINDO<br><span>À ARENA.</span>{% else %}ESCOLHA SEU<br><span>PORTAL DE ENTRADA.</span>{% endif %}</h1>
             <p class="auth-description">{% if current_user %}{{ current_user.name|e }}, seu acesso está confirmado. Prepare-se para entrar no campeonato.{% else %}Entre para acompanhar torneios, desafiar competidores e construir sua história.{% endif %}</p>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="auth-flash-messages" role="status" aria-live="polite">
+                        {% for category, message in messages %}<p class="auth-flash auth-flash-{{ category }}">{{ message|e }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
             <div class="auth-providers">
                 {% if google_oauth_enabled %}<a class="auth-provider" href="{{ url_for('auth.google_login') }}"><span class="provider-symbol">G</span> Continuar com Google <small>SEGURO</small></a>{% else %}<button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">G</span> Continuar com Google <small>CONFIGURAR GOOGLE OAUTH</small></button>{% endif %}
                 {% if discord_oauth_enabled %}<a class="auth-provider" href="{{ url_for('auth.discord_login') }}"><span class="provider-symbol">◈</span> Continuar com Discord <small>SEGURO</small></a>{% else %}<button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">◈</span> Continuar com Discord <small>CONFIGURAR DISCORD OAUTH</small></button>{% endif %}
