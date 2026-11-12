@@ -112,11 +112,10 @@ def test_oauth_login_routes_return_provider_specific_setup_message_when_unconfig
     assert b"Discord" in discord.data
 
 
-def test_module_pages_require_authentication(client):
+def test_public_module_pages_are_accessible_without_authentication(client):
     for path in ("/competitions", "/matches", "/ranking", "/achievements", "/community"):
         response = client.get(path)
-        assert response.status_code == 302
-        assert response.headers["Location"].endswith("/?screen=auth")
+        assert response.status_code == 200
 
 
 def test_authenticated_user_can_open_each_module_page(app, client):
@@ -153,10 +152,10 @@ def test_logout_returns_to_login_screen_without_replaying_intro(client):
     assert response.headers["Location"].endswith("/?screen=auth")
 
 
-def test_competitions_requires_authentication(client):
+def test_competitions_catalog_is_public(client):
     response = client.get("/competitions")
-    assert response.status_code == 302
-    assert response.headers["Location"].endswith("/?screen=auth")
+    assert response.status_code == 200
+    assert b"CAMPEONATOS" in response.data
 
 
 def test_user_can_create_tournament_and_register(app, client):
