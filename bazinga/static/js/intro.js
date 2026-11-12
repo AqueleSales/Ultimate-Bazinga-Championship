@@ -389,7 +389,8 @@
     if (auth.dataset.authenticated === 'true') {
       auth.classList.remove('is-leaving');
       auth.classList.add('is-entering');
-      document.getElementById('guest-entry')?.focus({ preventScroll: true });
+      // A successful OAuth callback should never wait for a confirmation click.
+      authTimer = window.setTimeout(enterHub, 3000);
       return;
     }
     auth.classList.remove('is-leaving');
@@ -439,7 +440,10 @@
       document.body.classList.remove('intro-lock');
       auth.hidden = false;
       auth.classList.add('is-entering');
-      document.getElementById('guest-entry')?.focus({ preventScroll: true });
+      if (auth.dataset.authenticated === 'true') {
+        // Keep the welcome transition brief, then open the hub automatically.
+        authTimer = window.setTimeout(enterHub, 3000);
+      }
       return;
     }
     await init3D();

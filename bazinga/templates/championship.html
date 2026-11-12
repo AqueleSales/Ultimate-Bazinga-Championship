@@ -21,7 +21,7 @@
     <div class="games-main">
         <div class="games-topbar">
             <div class="games-search"><span>⌕</span><span>Buscar campeonatos, jogadores...</span></div>
-            <div class="games-top-actions"><span class="topbar-status"><i></i> ARENA EM PREPARAÇÃO</span><button type="button" class="topbar-avatar" aria-label="Perfil indisponível">B</button></div>
+            <div class="games-top-actions"><span class="topbar-status"><i></i> ARENA EM PREPARAÇÃO</span>{% if current_user and current_user.avatar_url %}<img class="topbar-avatar" src="{{ current_user.avatar_url|e }}" alt="Foto de {{ current_user.name|e }}" referrerpolicy="no-referrer">{% elif current_user %}<span class="topbar-avatar" aria-label="Perfil de {{ current_user.name|e }}">{{ current_user.name[:1]|upper|e }}</span>{% else %}<a class="topbar-avatar" href="{{ url_for('main.championship_home', screen='auth') }}" aria-label="Entrar">B</a>{% endif %}</div>
         </div>
 
         <section class="games-hero" id="overview">
@@ -36,7 +36,7 @@
         </section>
 
         <div class="games-tabs" aria-label="Seções do campeonato">
-            <a class="active" href="#competitions">DESTAQUES</a><a href="#matches">PARTIDAS</a><a href="#ranking">RANKING</a><a href="{{ url_for('main.module_page', module='achievements') }}">HALL DA FAMA</a>
+            <a class="active" href="{{ url_for('main.competitions') }}">DESTAQUES</a><a href="#matches">PARTIDAS</a><a href="#ranking">RANKING</a><a href="{{ url_for('main.module_page', module='achievements') }}">HALL DA FAMA</a>
         </div>
 
         <section class="games-feature-grid" id="competitions">

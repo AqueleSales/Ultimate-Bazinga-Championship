@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Campeonatos | Ultimate Bazinga Championship{% endblock %}
+{% block content %}
+<div class="module-page">
+  <aside class="module-sidebar">
+    <a class="games-logo" href="{{ url_for('main.championship_home') }}"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a>
+    <nav class="sidebar-nav" aria-label="Navegação do campeonato">
+      <a href="{{ url_for('main.championship_home') }}"><span>◈</span> Visão geral</a>
+      <a class="is-current" href="{{ url_for('main.competitions') }}"><span>⌕</span> Campeonatos</a>
+      <a href="{{ url_for('main.module_page', module='matches') }}"><span>⚔</span> Partidas</a>
+      <a href="{{ url_for('main.module_page', module='ranking') }}"><span>♜</span> Ranking</a>
+      <a href="{{ url_for('main.module_page', module='achievements') }}"><span>✧</span> Conquistas</a>
+      <a href="{{ url_for('main.module_page', module='community') }}"><span>♧</span> Comunidade</a>
+    </nav>
+    <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div>
+  </aside>
+  <main class="module-main">
+    <div class="module-topline"><a href="{{ url_for('main.championship_home') }}">← VOLTAR À VISÃO GERAL</a><span>ULTIMATE BAZINGA CHAMPIONSHIP</span></div>
+    <section class="module-hero">
+      <p class="games-kicker">CENTRAL DE TORNEIOS / 01</p>
+      <h1>CAMPEONATOS</h1><h2>Escolha sua próxima disputa.</h2>
+      <p>Encontre torneios abertos, confira as regras e garanta sua vaga.</p>
+    </section>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
+    <section class="competition-create">
+      <div><span class="feature-state">ORGANIZADORES</span><h2>Monte sua própria disputa.</h2><p>Crie um campeonato e abra as inscrições para a comunidade.</p></div>
+      <form method="post" action="{{ url_for('main.create_competition') }}" class="competition-create-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Título do campeonato<input name="title" maxlength="180" required placeholder="Ex.: Ultimate Summer Cup"></label>
+        <label>Modalidade<select name="competition_mode"><option value="individual">Individual</option><option value="team">Equipes</option></select></label>
+        <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Regras, formato e informações importantes"></textarea></label>
+        <button class="games-cta" type="submit">CRIAR CAMPEONATO <span>↗</span></button>
+      </form>
+    </section>
+    <section class="competition-list">
+      <div class="competition-section-heading"><div><span class="feature-state">INSCRIÇÕES DISPONÍVEIS</span><h2>Próximas disputas</h2></div><span class="competition-count">{{ tournaments|length }} TORNEIO(S)</span></div>
+      {% if tournaments %}
+        <div class="competition-cards">
+        {% for tournament in tournaments %}
+          <article class="competition-card">
+            <div class="competition-card-art"><span>UBC</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
+            <div class="competition-card-body"><span class="feature-state">INSCRIÇÕES ABERTAS</span><h3>{{ tournament.title }}</h3><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p><div class="competition-meta"><span>{{ tournament.registrations|length }} inscrito(s)</span><span>{{ tournament.organizer.name|e }}</span></div><a class="games-cta" href="{{ url_for('main.competition_detail', tournament_id=tournament.id) }}">VER CAMPEONATO <span>↗</span></a></div>
+          </article>
+        {% endfor %}
+        </div>
+      {% else %}
+        <div class="module-empty"><div class="module-empty-icon">♜</div><h2>Nenhum campeonato aberto ainda.</h2><p>Crie o primeiro torneio acima ou volte em breve para encontrar novas disputas.</p></div>
+      {% endif %}
+    </section>
+    <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
+  </main>
+</div>
+{% endblock %}

@@ -112,11 +112,10 @@ def test_oauth_login_routes_return_provider_specific_setup_message_when_unconfig
     assert b"Discord" in discord.data
 
 
-def test_module_pages_require_authentication(client):
+def test_public_module_pages_are_accessible_without_authentication(client):
     for path in ("/competitions", "/matches", "/ranking", "/achievements", "/community"):
         response = client.get(path)
-        assert response.status_code == 302
-        assert response.headers["Location"].endswith("/?screen=auth")
+        assert response.status_code == 200
 
 
 def test_authenticated_user_can_open_each_module_page(app, client):
@@ -151,3 +150,52 @@ def test_logout_returns_to_login_screen_without_replaying_intro(client):
     response = client.post("/auth/logout", data={"csrf_token": "test-token"})
     assert response.status_code == 302
     assert response.headers["Location"].endswith("/?screen=auth")
+
+
+def test_competitions_catalog_is_public(client):
+    response = client.get("/competitions")
+    assert response.status_code == 200
+    assert b"CAMPEONATOS" in response.data
+
+
+def test_user_can_create_tournament_and_register(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User, Tournament, Participant, TournamentRegistration
+
+    with app.app_context():
+        user = User(name="Organizador", email="organizer@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+
+    client.get("/")
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
+    client.get("/")
+    with client.session_transaction() as session:
+        token = session["_csrf_token"]
+
+    response = client.post("/competitions/create", data={
+        "csrf_token": token,
+        "title": "Copa de Teste",
+        "description": "Torneio automatizado de teste",
+        "competition_mode": "individual",
+    }, follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Copa de Teste" in response.data
+
+    with app.app_context():
+        tournament = db.session.scalar(db.select(Tournament).where(Tournament.slug == "copa-de-teste"))
+        assert tournament is not None
+        tournament_id = tournament.id
+
+    response = client.post(f"/competitions/{tournament_id}/register", data={"csrf_token": token}, follow_redirects=True)
+    assert response.status_code == 200
+    with app.app_context():
+        participant = db.session.scalar(db.select(Participant).where(Participant.linked_user_id == user_id))
+        assert participant is not None
+        registration = db.session.scalar(db.select(TournamentRegistration).where(
+            TournamentRegistration.tournament_id == tournament_id,
+            TournamentRegistration.participant_id == participant.id,
+        ))
+        assert registration is not None

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ tournament.title }} | Ultimate Bazinga Championship{% endblock %}
+{% block content %}
+<div class="module-page">
+  <aside class="module-sidebar"><a class="games-logo" href="{{ url_for('main.championship_home') }}"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a><nav class="sidebar-nav"><a href="{{ url_for('main.championship_home') }}">◈ Visão geral</a><a class="is-current" href="{{ url_for('main.competitions') }}">⌕ Campeonatos</a><a href="{{ url_for('main.module_page', module='matches') }}">⚔ Partidas</a><a href="{{ url_for('main.module_page', module='ranking') }}">♜ Ranking</a></nav><div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div></aside>
+  <main class="module-main"><div class="module-topline"><a href="{{ url_for('main.competitions') }}">← TODOS OS CAMPEONATOS</a><span>DETALHES DO TORNEIO</span></div>
+    <section class="module-hero"><p class="games-kicker">CAMPEONATO / {{ tournament.slug|upper }}</p><h1>{{ tournament.title }}</h1><h2>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</h2><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p></section>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
+    <section class="competition-create"><div><span class="feature-state">STATUS: {{ tournament.status|upper }}</span><h2>{{ registrations|length }} competidor(es) inscrito(s)</h2><p>Organização: {{ tournament.organizer.name|e }}</p></div>
+      <div class="competition-detail-actions">
+      {% if tournament.status in ("registration_open", "open") %}
+        <form method="post" action="{{ url_for('main.register_competition', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">GARANTIR MINHA VAGA <span>↗</span></button></form>
+        <form method="post" action="{{ url_for('main.cancel_registration', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="competition-cancel" type="submit">CANCELAR INSCRIÇÃO</button></form>
+      {% else %}<span class="feature-state">INSCRIÇÕES ENCERRADAS</span>{% endif %}
+      </div>
+    </section>
+    <section class="competition-list"><div class="competition-section-heading"><div><span class="feature-state">LISTA OFICIAL</span><h2>Competidores</h2></div></div>
+      {% if registrations %}<ol class="competition-roster">{% for registration in registrations %}<li><span class="roster-number">{{ "%02d"|format(loop.index) }}</span><strong>{{ registration.participant.display_name|e }}</strong><span>{{ registration.status|upper }}</span></li>{% endfor %}</ol>{% else %}<div class="module-empty"><h2>Seja o primeiro competidor.</h2><p>A lista de inscritos aparecerá aqui.</p></div>{% endif %}
+    </section><footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
+  </main>
+</div>
+{% endblock %}
