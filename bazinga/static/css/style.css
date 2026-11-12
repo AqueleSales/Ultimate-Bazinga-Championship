@@ -574,3 +574,5 @@ body.intro-lock{overflow:hidden}
 /* The transparent fallback button must not intercept clicks on the 3D canvas. */
 .intro-fallback-card{pointer-events:none}
 .cinematic-intro.is-fallback .intro-fallback-card{pointer-events:auto}
+
+.competition-form-note{margin:0;color:#a69ca3;font-size:11px;line-height:1.6}
