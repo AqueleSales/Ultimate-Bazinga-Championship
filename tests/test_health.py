@@ -57,3 +57,21 @@ def test_cinematic_module_has_safe_three_js_fallback(client):
     assert b"await import('https://cdn.jsdelivr.net/npm/three" in response.data
     assert b"clock = new THREE.Clock()" in response.data
     assert b"function clickEnvelope(event)" in response.data
+    assert b"function createExplosion()" in response.data
+    assert b"envelope.visible = false" in response.data
+
+
+
+def test_cinematic_intro_uses_ultimate_bazinga_championship_brand_without_bros(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"aria-label=\"Ultimate Bazinga Championship\"" in response.data
+    assert b"BROS." not in response.data
+    assert b"logo-fire-backdrop" in response.data
+    assert b"hub-curtains" in response.data
+
+
+def test_oauth_landing_preserves_authenticated_entry_screen(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"id=\"guest-entry\"" not in response.data

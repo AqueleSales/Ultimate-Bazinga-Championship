@@ -451,3 +451,52 @@ body.intro-lock{overflow:hidden}
  .cinematic-intro.is-fallback .intro-fallback-card { animation:none; opacity:1; transform:none; }
  .cinematic-intro.is-fallback.is-card-ready .intro-fallback-card { animation:none; }
 }
+
+
+/* UBC original fighting-game identity: fire, impact and angular tournament lettering */
+.logo-fire-backdrop{position:absolute;z-index:4;inset:0;overflow:hidden;opacity:0;pointer-events:none;background:radial-gradient(ellipse at 50% 68%,#ffb13c35 0,transparent 45%),linear-gradient(180deg,#080509 0%,#17090a 58%,#310d09 100%)}
+.reveal-title.is-visible+.logo-fire-backdrop{opacity:1}
+.logo-fire-backdrop i{position:absolute;bottom:-24%;width:18vw;height:80%;border-radius:50% 50% 12% 12%;filter:blur(24px);opacity:.7;background:linear-gradient(0deg,#ffdf76 0%,#ff6a22 32%,#a91d12 66%,transparent 100%);transform-origin:50% 100%;animation:flame-dance 1.15s ease-in-out infinite alternate}
+.logo-fire-backdrop i:nth-child(1){left:3%;transform:rotate(-12deg) scaleY(.9)}
+.logo-fire-backdrop i:nth-child(2){left:22%;height:95%;animation-delay:-.5s}
+.logo-fire-backdrop i:nth-child(3){left:42%;height:78%;animation-delay:-.2s}
+.logo-fire-backdrop i:nth-child(4){left:65%;height:98%;animation-delay:-.8s}
+.logo-fire-backdrop i:nth-child(5){right:1%;height:82%;animation-delay:-.35s}
+.reveal-title{z-index:7;display:flex;gap:0;filter:drop-shadow(0 20px 30px #000d);width:min(96vw,1200px);padding:20px;opacity:0}
+.reveal-title.is-visible{opacity:1}
+.logo-topline,.logo-edition{display:block;color:#f9d5a1;font:900 clamp(8px,1vw,12px)/1 Inter,sans-serif;letter-spacing:.42em;text-align:center;text-shadow:0 2px 8px #000}
+.logo-topline{margin-bottom:15px;animation:none}
+.logo-ultimate,.logo-bazinga,.logo-championship{display:block;position:relative;text-align:center;font-family:var(--display-font);font-weight:900;text-transform:uppercase;line-height:.78;white-space:nowrap;letter-spacing:-.045em;-webkit-text-stroke:1px #41130c}
+.logo-ultimate{font-size:clamp(42px,8vw,100px);color:#fff0c9;text-shadow:0 3px 0 #8c3c1e,0 7px 0 #38100b,0 13px 24px #000,0 0 25px #ffb14a;transform:skewX(-8deg);animation:none}
+.logo-bazinga{z-index:2;margin:7px 0;font-size:clamp(76px,15vw,190px);letter-spacing:-.065em;color:#ffcf73;-webkit-text-stroke:2px #7e2113;text-shadow:0 2px 0 #fff0b8,0 6px 0 #c44a1c,0 12px 0 #6f1b12,0 19px 30px #000,0 0 45px #ff6a20;transform:skewX(-7deg);animation:none}
+.logo-championship{font-size:clamp(27px,5.2vw,66px);letter-spacing:.025em;color:#fff1d8;text-shadow:0 3px 0 #a3411e,0 7px 0 #3c100a,0 12px 22px #000;transform:skewX(-5deg);animation:none}
+.logo-edition{margin-top:23px;animation:none}
+@keyframes logo-drop{0%{opacity:0;transform:translateY(-115vh) rotate(-8deg) scale(1.2)}68%{opacity:1;transform:translateY(12px) rotate(2deg) scale(1.03)}84%{transform:translateY(-5px) rotate(-1deg) scale(.99)}100%{opacity:1;transform:translateY(0) rotate(0) scale(1)}}
+@keyframes flame-dance{from{filter:blur(22px) brightness(.85);transform:scaleY(.78) skewX(-7deg)}to{filter:blur(30px) brightness(1.4);transform:scaleY(1.12) skewX(8deg)}}
+.cinematic-intro.is-title .logo-fire-backdrop{opacity:1;transition:opacity .45s ease}
+.cinematic-intro.is-title .intro-3d-canvas{opacity:.08;transition:opacity .6s}
+.cinematic-intro.is-title .intro-hint{opacity:0}
+.cinematic-intro.is-title .intro-controls{opacity:0;pointer-events:none}
+.intro-fallback-card.is-exploding{animation:fallback-letter-explode .9s ease-in forwards!important}
+@keyframes fallback-letter-explode{0%{opacity:1;transform:scale(1) rotate(0);filter:brightness(1)}22%{opacity:1;transform:scale(1.12) rotate(-4deg);filter:brightness(2.4)}100%{opacity:0;transform:scale(1.8) rotate(18deg);filter:blur(12px);clip-path:polygon(0 0,30% 0,42% 24%,65% 0,100% 0,78% 40%,100% 60%,72% 68%,100% 100%,55% 82%,30% 100%,38% 67%,0 82%,22% 48%)}}
+.cinematic-intro.is-opening .intro-3d-canvas{animation:letter-flash .5s ease-out}
+@keyframes letter-flash{0%{filter:brightness(1)}28%{filter:brightness(3)}100%{filter:brightness(1)}}
+.fire-transition.is-running{display:block;animation:none;opacity:1}
+.fire-transition.is-running #fire-canvas{animation:fire-wall 1.35s cubic-bezier(.2,.75,.15,1) forwards}
+.hub-curtains{position:absolute;inset:0;z-index:5;display:block;pointer-events:none}
+.hub-curtains span{position:absolute;top:-4%;bottom:-4%;width:52%;background:repeating-linear-gradient(90deg,#21050b 0 10px,#4d0b16 15px,#9a1d2b 27px,#4a0b16 40px,#21050b 53px);box-shadow:inset 0 0 65px #080205,0 0 55px #000}
+.hub-curtains span:first-child{left:0;transform:translateX(0);border-right:8px solid #d26b48}
+.hub-curtains span:last-child{right:0;transform:translateX(0);border-left:8px solid #d26b48}
+.fire-transition.is-running .hub-curtains span:first-child{animation:hub-curtain-left 1.05s cubic-bezier(.7,0,.2,1) .42s forwards}
+.fire-transition.is-running .hub-curtains span:last-child{animation:hub-curtain-right 1.05s cubic-bezier(.7,0,.2,1) .42s forwards}
+@keyframes hub-curtain-left{to{transform:translateX(-105%)}}
+@keyframes hub-curtain-right{to{transform:translateX(105%)}}
+.auth-stage.is-entering .auth-panel{animation:auth-rise .8s cubic-bezier(.2,.8,.2,1) both}
+@media(max-width:620px){.logo-bazinga{font-size:clamp(68px,17vw,118px)}.logo-championship{font-size:clamp(25px,7vw,42px)}.logo-topline,.logo-edition{letter-spacing:.2em}}
+@media(prefers-reduced-motion:reduce){.logo-fire-backdrop i{animation:none}.logo-topline,.logo-ultimate,.logo-bazinga,.logo-championship,.logo-edition{animation:none;opacity:1;transform:none}.hub-curtains{display:none}}
+
+.reveal-title.is-visible .logo-topline{animation:logo-drop .9s cubic-bezier(.15,.8,.2,1) both}
+.reveal-title.is-visible .logo-ultimate{animation:logo-drop .8s cubic-bezier(.15,.8,.2,1) .12s both}
+.reveal-title.is-visible .logo-bazinga{animation:logo-drop 1s cubic-bezier(.15,.8,.2,1) .24s both}
+.reveal-title.is-visible .logo-championship{animation:logo-drop .9s cubic-bezier(.15,.8,.2,1) .38s both}
+.reveal-title.is-visible .logo-edition{animation:logo-drop .8s ease .52s both}

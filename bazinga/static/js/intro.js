@@ -21,6 +21,8 @@
   let flapPivot = null;
   let sealMesh = null;
   let openingTimer = 0;
+  let explosionShards = [];
+  let explosionStartedAt = 0;
   let particles = null;
   let raf = 0;
   let clock = null;
@@ -60,13 +62,6 @@
     seal.position.set(0, -.08, .2);
     group.add(seal);
 
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(.29, .025, 8, 48),
-      new THREE.MeshStandardMaterial({ color: 0xe5b66e, metalness: .65, roughness: .28 })
-    );
-    ring.position.set(0, -.08, .29);
-    group.add(ring);
-
     const stamp = new THREE.Mesh(
       new THREE.CylinderGeometry(.11, .11, .02, 6),
       new THREE.MeshStandardMaterial({ color: 0xf1c889, metalness: .45, roughness: .35 })
@@ -75,6 +70,73 @@
     stamp.position.set(0, -.08, .31);
     group.add(stamp);
     return group;
+  }
+
+  function createExplosion() {
+    if (!THREE || !scene || !envelope) return;
+    explosionShards.forEach((shard) => scene.remove(shard.mesh));
+    explosionShards = [];
+    const palette = [0xe9dfcc, 0xd8c4a8, 0xb7a58e, 0x9a3029, 0xe5a94f, 0xf2c57f];
+    const center = envelope.position.clone();
+    const count = 42;
+    for (let i = 0; i < count; i += 1) {
+      const width = .12 + Math.random() * .42;
+      const height = .12 + Math.random() * .38;
+      const shape = new THREE.Shape();
+      shape.moveTo(-width * .5, -height * .35);
+      shape.lineTo(width * (.25 + Math.random() * .5), -height * .5);
+      shape.lineTo((Math.random() - .5) * width, height * .6);
+      shape.closePath();
+      const geometry = new THREE.ShapeGeometry(shape);
+      const material = new THREE.MeshBasicMaterial({
+        color: palette[i % palette.length],
+        side: THREE.DoubleSide,
+        transparent: false
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(
+        center.x + (Math.random() - .5) * 2.4,
+        center.y + (Math.random() - .5) * 1.5,
+        center.z + .2 + Math.random() * .45
+      );
+      scene.add(mesh);
+      const direction = new THREE.Vector3(
+        (Math.random() - .5) * 2.2,
+        (Math.random() - .15) * 2.4,
+        (Math.random() - .5) * 1.2
+      ).normalize();
+      explosionShards.push({
+        mesh,
+        velocity: direction.multiplyScalar(2.2 + Math.random() * 5.2),
+        spin: new THREE.Vector3(
+          (Math.random() - .5) * 13,
+          (Math.random() - .5) * 13,
+          (Math.random() - .5) * 13
+        )
+      });
+    }
+    envelope.visible = false;
+    explosionStartedAt = performance.now();
+  }
+
+  function updateExplosion(delta) {
+    if (!explosionShards.length) return;
+    explosionShards.forEach((shard) => {
+      shard.velocity.y -= 3.8 * delta;
+      shard.mesh.position.addScaledVector(shard.velocity, delta);
+      shard.mesh.rotation.x += shard.spin.x * delta;
+      shard.mesh.rotation.y += shard.spin.y * delta;
+      shard.mesh.rotation.z += shard.spin.z * delta;
+    });
+  }
+
+  function clearExplosion() {
+    explosionShards.forEach((shard) => {
+      scene?.remove(shard.mesh);
+      shard.mesh.geometry.dispose();
+      shard.mesh.material.dispose();
+    });
+    explosionShards = [];
   }
 
   async function init3D() {
@@ -154,13 +216,14 @@
     intro.classList.add('is-title');
     showControls();
     window.clearTimeout(authTimer);
-    authTimer = window.setTimeout(openAuth, 5200);
+    authTimer = window.setTimeout(openAuth, reducedMotion.matches ? 0 : 6500);
   }
 
   function animate() {
     raf = requestAnimationFrame(animate);
     if (!renderer || !scene || !clock) return;
-    const elapsed = clock.getElapsedTime();
+    const delta = Math.min(clock.getDelta(), .04);
+    const elapsed = clock.elapsedTime;
 
     if (phase === 'arrival') {
       const raw = Math.min((performance.now() - startedAt) / 4800, 1);
@@ -216,18 +279,13 @@
       envelope.scale.setScalar(1 + Math.max(0, pulse) * .018);
       if (sealMesh) sealMesh.scale.setScalar(1 + Math.max(0, pulse) * .055);
     } else if (phase === 'opening') {
-      const t = Math.min((performance.now() - startedAt) / 1450, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      if (flapPivot) flapPivot.rotation.x = -Math.PI * .92 * eased;
-      if (sealMesh) {
-        sealMesh.scale.setScalar(Math.max(.001, 1 - eased * 1.4));
-        sealMesh.rotation.z = eased * Math.PI * 2.5;
+      const t = Math.min((performance.now() - startedAt) / 1550, 1);
+      updateExplosion(delta);
+      if (particles) particles.material.opacity = Math.max(0, 1 - t * .7);
+      if (t >= 1) {
+        clearExplosion();
+        revealTitle();
       }
-      envelope.position.y = Math.sin(t * Math.PI) * .18;
-      envelope.rotation.z = Math.sin(t * Math.PI) * .055;
-      envelope.scale.setScalar(1 + Math.sin(t * Math.PI) * .09);
-      if (particles) particles.material.opacity = Math.min(t * 1.25, 1);
-      if (t >= 1) revealTitle();
     }
 
     if (particles && phase !== 'idle') {
@@ -251,6 +309,7 @@
     shell.classList.remove('is-unlocked');
     intro.classList.remove('is-title', 'is-impact', 'is-static', 'is-card-ready', 'is-opening');
     title?.classList.remove('is-visible');
+    document.getElementById('intro-fallback-card')?.classList.remove('is-exploding');
     controls?.classList.remove('is-visible');
     intro.classList.add('is-active');
     intro.setAttribute('aria-hidden', 'false');
@@ -279,6 +338,8 @@
     envelope.scale.setScalar(.01);
     if (flapPivot) flapPivot.rotation.x = 0;
     if (sealMesh) sealMesh.scale.setScalar(1);
+    if (envelope) envelope.visible = true;
+    clearExplosion();
     if (particles) particles.material.opacity = 0;
     clock.start();
     cancelAnimationFrame(raf);
@@ -291,6 +352,7 @@
     if (!renderer || !envelope) {
       phase = 'opening';
       intro.classList.add('is-opening');
+      document.getElementById('intro-fallback-card')?.classList.add('is-exploding');
       openingTimer = window.setTimeout(revealTitle, reducedMotion.matches ? 0 : 1450);
       return;
     }
@@ -298,7 +360,8 @@
     startedAt = performance.now();
     intro.classList.remove('is-impact');
     intro.classList.add('is-opening');
-    if (particles) particles.material.opacity = .95;
+    createExplosion();
+    if (particles) particles.material.opacity = 1;
   }
 
   function clickEnvelope(event) {
@@ -340,7 +403,7 @@
       auth.classList.remove('is-leaving');
       document.getElementById('main-content')?.focus({ preventScroll: true });
       try { sessionStorage.setItem('ubc-hub-entered-v1', '1'); } catch (_) {}
-    }, reducedMotion.matches ? 0 : 1050);
+    }, reducedMotion.matches ? 0 : 1550);
   }
 
   canvas.addEventListener('click', clickEnvelope);
@@ -358,9 +421,19 @@
   (async () => {
     let entered = false;
     try { entered = sessionStorage.getItem('ubc-hub-entered-v1') === '1'; } catch (_) {}
-    if (entered) {
+    if (entered && auth.dataset.authenticated !== 'true') {
       shell.classList.add('is-unlocked');
       auth.hidden = true;
+      return;
+    }
+    if (auth.dataset.authenticated === 'true') {
+      phase = 'auth';
+      intro.classList.remove('is-active');
+      intro.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
+      auth.hidden = false;
+      auth.classList.add('is-entering');
+      document.getElementById('guest-entry')?.focus({ preventScroll: true });
       return;
     }
     await init3D();
