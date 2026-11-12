@@ -28,7 +28,7 @@
       <form method="post" action="{{ url_for('main.create_competition') }}" class="competition-create-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <label>Título do campeonato<input name="title" maxlength="180" required placeholder="Ex.: Ultimate Summer Cup"></label>
-        <label>Modalidade<select name="competition_mode"><option value="individual">Individual</option><option value="team">Equipes</option></select></label>
+        <input type="hidden" name="competition_mode" value="individual"><p class="competition-form-note">Inscrições individuais nesta etapa.</p>
         <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Regras, formato e informações importantes"></textarea></label>
         <button class="games-cta" type="submit">CRIAR CAMPEONATO <span>↗</span></button>
       </form>
