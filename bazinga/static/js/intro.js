@@ -236,6 +236,7 @@
     intro.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('intro-lock');
     auth.hidden = false;
+    if (auth.dataset.authenticated === 'true') { enterHub(); return; }
     auth.classList.remove('is-leaving');
     auth.classList.add('is-entering');
     document.getElementById('guest-entry')?.focus({ preventScroll: true });
