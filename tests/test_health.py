@@ -25,8 +25,8 @@ def test_homepage_includes_accessible_cinematic_intro(client):
 def test_homepage_exposes_oauth_providers_as_unconfigured_without_credentials(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert b"Configurar Google OAuth" in response.data
-    assert b"Configurar Discord OAuth" in response.data
+    assert b"CONFIGURAR GOOGLE OAUTH" in response.data
+    assert b"CONFIGURAR DISCORD OAUTH" in response.data
     assert b'href="/auth/google"' not in response.data
     assert b'href="/auth/discord"' not in response.data
 
@@ -40,6 +40,7 @@ def test_logout_clears_session(client):
     with client.session_transaction() as session:
         session["user_id"] = 123
         session["auth_provider"] = "google"
+        session["_csrf_token"] = "test-csrf-token"
     with client.session_transaction() as session:
         token = session.get("_csrf_token")
     response = client.post("/auth/logout", data={"csrf_token": token})
