@@ -105,7 +105,14 @@ def _sign_in(provider, provider_id, name, email, avatar_url):
         db.session.add(user)
         db.session.add(account)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Falha ao salvar a conta local após OAuth com %s", provider)
+        flash("A autenticação foi aceita pelo provedor, mas não foi possível salvar sua conta. Confira o terminal do servidor.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
+
     # Rotate the session after authentication to avoid session fixation.
     session.clear()
     session["user_id"] = user.id
