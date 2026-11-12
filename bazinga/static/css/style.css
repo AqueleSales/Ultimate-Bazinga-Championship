@@ -563,3 +563,9 @@ body.intro-lock{overflow:hidden}
 .competition-roster li>span:last-child{color:#b99a81;font-size:9px;letter-spacing:.1em}
 .roster-number{color:#ce8a58;font:700 20px var(--display-font)}
 @media(max-width:760px){.competition-create{grid-template-columns:1fr;padding:22px}.competition-section-heading{align-items:start;gap:12px;flex-direction:column}.competition-roster li{grid-template-columns:35px 1fr}.competition-roster li>span:last-child{grid-column:2}}
+
+
+/* Authenticated account identity */
+.account-chip{display:flex;align-items:center;gap:.65rem}
+.account-avatar,.account-avatar-fallback{width:34px;height:34px;flex:0 0 34px;border-radius:50%;object-fit:cover;border:1px solid rgba(229,169,79,.65)}
+.account-avatar-fallback{display:grid;place-items:center;background:#25212a;color:#f2c57f;font-weight:800}
