@@ -24,6 +24,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
     <section class="competition-create">
       <div><span class="feature-state">ORGANIZADORES</span><h2>Monte sua própria disputa.</h2><p>Crie um campeonato e abra as inscrições para a comunidade.</p></div>
+      {% if current_user %}
       <form method="post" action="{{ url_for('main.create_competition') }}" class="competition-create-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
         <label>Título do campeonato<input name="title" maxlength="180" required placeholder="Ex.: Ultimate Summer Cup"></label>
@@ -31,6 +32,9 @@
         <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Regras, formato e informações importantes"></textarea></label>
         <button class="games-cta" type="submit">CRIAR CAMPEONATO <span>↗</span></button>
       </form>
+      {% else %}
+      <div class="competition-detail-actions"><p>Entre na sua conta para organizar um campeonato.</p><a class="games-cta" href="{{ url_for('main.championship_home', screen='auth') }}">ENTRAR PARA ORGANIZAR <span>↗</span></a></div>
+      {% endif %}
     </section>
     <section class="competition-list">
       <div class="competition-section-heading"><div><span class="feature-state">INSCRIÇÕES DISPONÍVEIS</span><h2>Próximas disputas</h2></div><span class="competition-count">{{ tournaments|length }} TORNEIO(S)</span></div>
