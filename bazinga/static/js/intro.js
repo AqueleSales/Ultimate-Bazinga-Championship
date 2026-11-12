@@ -386,7 +386,12 @@
     intro.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('intro-lock');
     auth.hidden = false;
-    if (auth.dataset.authenticated === 'true') { enterHub(); return; }
+    if (auth.dataset.authenticated === 'true') {
+      auth.classList.remove('is-leaving');
+      auth.classList.add('is-entering');
+      document.getElementById('guest-entry')?.focus({ preventScroll: true });
+      return;
+    }
     auth.classList.remove('is-leaving');
     auth.classList.add('is-entering');
     document.getElementById('guest-entry')?.focus({ preventScroll: true });
@@ -426,7 +431,8 @@
       auth.hidden = true;
       return;
     }
-    if (auth.dataset.authenticated === 'true') {
+    const requestedScreen = new URLSearchParams(window.location.search).get('screen');
+    if (auth.dataset.authenticated === 'true' || requestedScreen === 'auth') {
       phase = 'auth';
       intro.classList.remove('is-active');
       intro.setAttribute('aria-hidden', 'true');

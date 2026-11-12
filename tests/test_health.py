@@ -110,3 +110,44 @@ def test_oauth_login_routes_return_provider_specific_setup_message_when_unconfig
     assert b"Google" in google.data
     assert discord.status_code == 503
     assert b"Discord" in discord.data
+
+
+def test_module_pages_require_authentication(client):
+    for path in ("/competitions", "/matches", "/ranking", "/achievements", "/community"):
+        response = client.get(path)
+        assert response.status_code == 302
+        assert response.headers["Location"].endswith("/?screen=auth")
+
+
+def test_authenticated_user_can_open_each_module_page(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User
+
+    with app.app_context():
+        user = User(name="Competidor de Teste", email="competidor@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
+
+    for path, heading in (
+        ("/competitions", b"CAMPEONATOS"),
+        ("/matches", b"PARTIDAS"),
+        ("/ranking", b"RANKING"),
+        ("/achievements", b"CONQUISTAS"),
+        ("/community", b"COMUNIDADE"),
+    ):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert heading in response.data
+
+
+def test_logout_returns_to_login_screen_without_replaying_intro(client):
+    with client.session_transaction() as session:
+        session["user_id"] = 123
+        session["_csrf_token"] = "test-token"
+    response = client.post("/auth/logout", data={"csrf_token": "test-token"})
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/?screen=auth")
