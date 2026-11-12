@@ -37,7 +37,7 @@
         <span class="intro-corner-mark" aria-hidden="true">UBC / EST. BAZINGA</span>
     </section>
 
-    <section class="auth-stage" id="auth-stage" aria-labelledby="auth-title" data-authenticated="{{ current_user is not none }}" hidden>
+    <section class="auth-stage" id="auth-stage" aria-labelledby="auth-title" data-authenticated="{{ 'true' if current_user is not none else 'false' }}" hidden>
         <div class="auth-grain" aria-hidden="true"></div>
         <div class="auth-panel">
             <p class="auth-kicker">A ARENA ESTÁ ABERTA</p>
