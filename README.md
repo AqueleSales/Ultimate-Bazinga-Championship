@@ -52,7 +52,7 @@ Reinicie o servidor depois de alterar o `.env`. Para produção, cadastre també
 
 **Segurança:** nunca envie Client Secret pelo chat, não o coloque no Git e não compartilhe seu arquivo `.env`. O app associa cada conta pelo ID imutável do provedor e não une contas automaticamente só porque os e-mails coincidem.
 
-Execute `python app.py` e abra `http://127.0.0.1:5000`.
+Execute `python app.py` e abra `http://127.0.0.1:5000`. Na primeira inicialização, o app cria as tabelas ausentes do banco local automaticamente. O método `create_all` não altera tabelas existentes; alterações futuras de esquema devem ser feitas com Flask-Migrate.
 
 ## Testes
 
