@@ -36,7 +36,7 @@
         </section>
 
         <div class="games-tabs" aria-label="Seções do campeonato">
-            <a class="active" href="#competitions">DESTAQUES</a><a href="#matches">PARTIDAS</a><a href="#ranking">RANKING</a><a href="{{ url_for('main.module_page', module='achievements') }}">HALL DA FAMA</a>
+            <a class="active" href="{{ url_for('main.competitions') }}">DESTAQUES</a><a href="#matches">PARTIDAS</a><a href="#ranking">RANKING</a><a href="{{ url_for('main.module_page', module='achievements') }}">HALL DA FAMA</a>
         </div>
 
         <section class="games-feature-grid" id="competitions">
