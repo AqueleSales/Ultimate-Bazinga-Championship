@@ -10,12 +10,15 @@ class TestConfig:
     SQLALCHEMY_DATABASE_URI = "sqlite://"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {}
+    GOOGLE_CLIENT_ID = None
+    GOOGLE_CLIENT_SECRET = None
+    DISCORD_CLIENT_ID = None
+    DISCORD_CLIENT_SECRET = None
 
 
 @pytest.fixture()
 def app():
     application = create_app(TestConfig)
-
     with application.app_context():
         db.create_all()
         yield application
