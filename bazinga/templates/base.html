@@ -48,7 +48,7 @@
                 {% if discord_oauth_enabled %}<a class="auth-provider" href="{{ url_for('auth.discord_login') }}"><span class="provider-symbol">◈</span> Continuar com Discord <small>SEGURO</small></a>{% else %}<button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">◈</span> Continuar com Discord <small>CONFIGURAR DISCORD OAUTH</small></button>{% endif %}
             </div>
             <p class="oauth-status" id="oauth-status">Os provedores são ativados quando as credenciais OAuth estiverem configuradas no arquivo .env.</p>
-            <button class="guest-entry" id="guest-entry" type="button">{% if current_user %}ENTRAR NA ARENA{% else %}ENTRAR COMO VISITANTE{% endif %} <span aria-hidden="true">→</span></button>
+            {% if current_user %}<button class="guest-entry" id="guest-entry" type="button">ENTRAR NA ARENA <span aria-hidden="true">→</span></button>{% endif %}
         </div>
         <div class="auth-emblem" aria-hidden="true">UBC</div>
     </section>
