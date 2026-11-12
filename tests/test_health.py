@@ -71,6 +71,58 @@ def test_cinematic_intro_uses_ultimate_bazinga_championship_brand_without_bros(c
     assert b"hub-curtains" in response.data
 
 
+def test_intro_script_limits_cinematic_login_flow_to_homepage(client):
+    response = client.get("/static/js/intro.js")
+    assert response.status_code == 200
+    assert b"const isHomePage = window.location.pathname === '/'" in response.data
+    assert b"requestedScreen === 'hub' && auth.dataset.authenticated === 'true'" in response.data
+    assert b"if (!isHomePage)" in response.data
+
+
+def test_guest_can_browse_competition_details_and_is_guided_to_login(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User, Tournament
+
+    with app.app_context():
+        user = User(name="Organizador", email="organizer-detail@example.test")
+        db.session.add(user)
+        db.session.flush()
+        tournament = Tournament(
+            title="Copa Pública", slug="copa-publica", status="registration_open",
+            competition_mode="individual", visibility="public", organizer_id=user.id,
+        )
+        db.session.add(tournament)
+        db.session.commit()
+        tournament_id = tournament.id
+
+    response = client.get(f"/competitions/{tournament_id}")
+    assert response.status_code == 200
+    assert "Copa Pública".encode() in response.data
+    assert b"ENTRAR E GARANTIR VAGA" in response.data
+    assert b'name="csrf_token"' not in response.data
+
+
+def test_guest_registration_action_redirects_to_login(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User, Tournament
+
+    with app.app_context():
+        user = User(name="Organizador", email="organizer-register@example.test")
+        db.session.add(user)
+        db.session.flush()
+        tournament = Tournament(
+            title="Copa Aberta", slug="copa-aberta", status="registration_open",
+            competition_mode="individual", visibility="public", organizer_id=user.id,
+        )
+        db.session.add(tournament)
+        db.session.commit()
+        tournament_id = tournament.id
+
+    response = client.post(f"/competitions/{tournament_id}/register")
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/?screen=auth")
+
+
 def test_oauth_landing_preserves_authenticated_entry_screen(client):
     response = client.get("/")
     assert response.status_code == 200
