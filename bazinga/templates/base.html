@@ -42,11 +42,11 @@
             <h1 id="auth-title">ESCOLHA SEU<br><span>PORTAL DE ENTRADA.</span></h1>
             <p class="auth-description">Entre para acompanhar torneios, desafiar competidores e construir sua história.</p>
             <div class="auth-providers">
-                <button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">G</span> Continuar com Google <small>EM CONFIGURAÇÃO</small></button>
-                <button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">◈</span> Continuar com Discord <small>EM CONFIGURAÇÃO</small></button>
+                {% if google_oauth_enabled %}<a class="auth-provider" href="{{ url_for('auth.google_login') }}"><span class="provider-symbol">G</span> Continuar com Google <small>SEGURO</small></a>{% else %}<button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">G</span> Continuar com Google <small>CONFIGURAR GOOGLE OAUTH</small></button>{% endif %}
+                {% if discord_oauth_enabled %}<a class="auth-provider" href="{{ url_for('auth.discord_login') }}"><span class="provider-symbol">◈</span> Continuar com Discord <small>SEGURO</small></a>{% else %}<button class="auth-provider" type="button" disabled aria-describedby="oauth-status"><span class="provider-symbol">◈</span> Continuar com Discord <small>CONFIGURAR DISCORD OAUTH</small></button>{% endif %}
             </div>
-            <p class="oauth-status" id="oauth-status">A autenticação OAuth será ativada após configurar as credenciais seguras do projeto.</p>
-            <button class="guest-entry" id="guest-entry" type="button">VISUALIZAR A ARENA <span aria-hidden="true">→</span></button>
+            <p class="oauth-status" id="oauth-status">Os provedores são ativados quando as credenciais OAuth estiverem configuradas no arquivo .env.</p>
+            <button class="guest-entry" id="guest-entry" type="button">ENTRAR COMO VISITANTE <span aria-hidden="true">→</span></button>
         </div>
         <div class="auth-emblem" aria-hidden="true">UBC</div>
     </section>
@@ -67,7 +67,7 @@
                 <a href="#competitions">Campeonatos</a>
                 <button class="replay-intro" id="replay-intro" type="button" aria-label="Rever a abertura">↻ <span>Rever abertura</span></button>
             </nav>
-            <span class="header-label">ULTIMATE CHAMPIONSHIP</span>
+            {% if current_user %}<div class="account-chip"><span>{{ current_user.name|e }}</span><form method="post" action="{{ url_for('auth.logout') }}"><button type="submit">SAIR</button></form></div>{% else %}<span class="header-label">ULTIMATE CHAMPIONSHIP</span>{% endif %}
         </header>
         <main class="page-shell" id="main-content" tabindex="-1">{% block content %}{% endblock %}</main>
         <footer class="site-footer">
