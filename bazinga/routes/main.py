@@ -63,7 +63,6 @@ def hub():
 
 
 @main_bp.get("/competitions")
-@login_required
 def competitions():
     tournaments = db.session.scalars(
         db.select(Tournament)
@@ -71,7 +70,7 @@ def competitions():
         .order_by(Tournament.starts_at.asc().nullslast(), Tournament.created_at.desc())
     ).all()
     user = get_current_user()
-    participant = db.session.scalar(db.select(Participant).where(Participant.linked_user_id == user.id))
+    participant = db.session.scalar(db.select(Participant).where(Participant.linked_user_id == user.id)) if user else None
     registered_ids = set()
     if participant:
         registered_ids = set(db.session.scalars(
@@ -84,10 +83,10 @@ def competitions():
 
 
 @main_bp.get("/competitions/<int:tournament_id>")
-@login_required
 def competition_detail(tournament_id):
     tournament = db.get_or_404(Tournament, tournament_id)
-    if tournament.visibility != "public" and tournament.organizer_id != get_current_user().id:
+    user = get_current_user()
+    if tournament.visibility != "public" and (not user or tournament.organizer_id != user.id):
         abort(404)
     registrations = db.session.scalars(
         db.select(TournamentRegistration)
@@ -178,7 +177,6 @@ def create_competition():
 
 
 @main_bp.get("/<module>")
-@login_required
 def module_page(module):
     data = MODULES.get(module)
     if not data:
