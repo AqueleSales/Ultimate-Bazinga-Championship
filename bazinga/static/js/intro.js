@@ -201,7 +201,7 @@
     startedAt = performance.now();
 
     if (reducedMotion.matches) {
-      intro.classList.add('is-static');
+      intro.classList.add('is-static', 'is-fallback');
       revealTitle();
       return;
     }
