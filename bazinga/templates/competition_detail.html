@@ -9,8 +9,18 @@
     <section class="competition-create"><div><span class="feature-state">STATUS: {{ tournament.status|upper }}</span><h2>{{ registrations|length }} competidor(es) inscrito(s)</h2><p>Organização: {{ tournament.organizer.name|e }}</p></div>
       <div class="competition-detail-actions">
       {% if tournament.status in ("registration_open", "open") %}
-        <form method="post" action="{{ url_for('main.register_competition', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">GARANTIR MINHA VAGA <span>↗</span></button></form>
-        <form method="post" action="{{ url_for('main.cancel_registration', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="competition-cancel" type="submit">CANCELAR INSCRIÇÃO</button></form>
+        {% if not current_user %}
+          <p>Entre para participar deste campeonato.</p><a class="games-cta" href="{{ url_for('main.championship_home', screen='auth') }}">ENTRAR E GARANTIR VAGA <span>↗</span></a>
+        {% elif tournament.competition_mode == "team" %}
+          <span class="feature-state">INSCRIÇÕES POR EQUIPE EM PREPARAÇÃO</span>
+        {% elif user_registration %}
+          <span class="feature-state">VOCÊ JÁ ESTÁ INSCRITO</span>
+          {% if user_registration.status == "registered" %}
+            <form method="post" action="{{ url_for('main.cancel_registration', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="competition-cancel" type="submit">CANCELAR INSCRIÇÃO</button></form>
+          {% endif %}
+        {% else %}
+          <form method="post" action="{{ url_for('main.register_competition', tournament_id=tournament.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">GARANTIR MINHA VAGA <span>↗</span></button></form>
+        {% endif %}
       {% else %}<span class="feature-state">INSCRIÇÕES ENCERRADAS</span>{% endif %}
       </div>
     </section>
