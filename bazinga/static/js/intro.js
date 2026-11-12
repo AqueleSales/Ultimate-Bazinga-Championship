@@ -19,6 +19,8 @@
   let camera = null;
   let envelope = null;
   let flapPivot = null;
+  let sealMesh = null;
+  let openingTimer = 0;
   let particles = null;
   let raf = 0;
   let clock = null;
@@ -53,6 +55,7 @@
       new THREE.CylinderGeometry(.34, .38, .13, 48),
       new THREE.MeshStandardMaterial({ color: 0x9a3029, roughness: .35, metalness: .28 })
     );
+    sealMesh = seal;
     seal.rotation.x = Math.PI / 2;
     seal.position.set(0, -.08, .2);
     group.add(seal);
@@ -160,29 +163,71 @@
     const elapsed = clock.getElapsedTime();
 
     if (phase === 'arrival') {
-      const t = Math.min((performance.now() - startedAt) / 2200, 1);
-      const eased = 1 - Math.pow(1 - t, 4);
-      envelope.position.set(-5 + 5 * eased, 3 - 3 * eased, Math.sin(t * Math.PI) * 1.25);
-      envelope.rotation.set(.22 * (1 - eased), -.32 * (1 - eased), -.52 * (1 - eased));
-      envelope.scale.setScalar(.01 + .99 * eased);
+      const raw = Math.min((performance.now() - startedAt) / 4800, 1);
+      const t = raw * raw * (3 - 2 * raw);
+      const drift = (1 - raw);
+      envelope.position.set(
+        -5 + 5 * t + Math.sin(raw * Math.PI * 4) * 1.15 * drift,
+        3 - 3 * t + Math.sin(raw * Math.PI * 3) * .72 * drift,
+        -1 + Math.sin(raw * Math.PI * 5) * 1.1 * drift
+      );
+      envelope.rotation.set(
+        Math.sin(raw * Math.PI * 4) * .48 * drift,
+        Math.cos(raw * Math.PI * 3) * .62 * drift,
+        -.9 * drift + Math.sin(raw * Math.PI * 5) * .75 * drift
+      );
+      envelope.scale.setScalar(.025 + .975 * t);
+      if (raw >= 1) {
+        phase = 'landing';
+        startedAt = performance.now();
+        intro.classList.add('is-impact');
+      }
+    } else if (phase === 'landing') {
+      const t = Math.min((performance.now() - startedAt) / 720, 1);
+      const bounce = Math.exp(-5 * t) * Math.cos(t * 17);
+      envelope.position.y = -.12 + bounce * .34;
+      envelope.rotation.z = bounce * .13;
+      envelope.scale.setScalar(1 - Math.abs(bounce) * .035);
       if (t >= 1) {
         phase = 'waiting';
+        envelope.position.set(0, 0, 0);
+        envelope.rotation.set(0, 0, 0);
+        envelope.scale.setScalar(1);
         showControls();
       }
     } else if (phase === 'waiting') {
-      envelope.position.y = Math.sin(elapsed * 1.15) * .045;
-      envelope.rotation.y = Math.sin(elapsed * .5) * .025;
-    } else if (phase === 'impact') {
-      const t = Math.min((performance.now() - startedAt) / 950, 1);
-      envelope.scale.setScalar(1 + Math.sin(t * Math.PI) * .13);
-      if (flapPivot) flapPivot.rotation.x = -Math.min(t * 1.8, 1.35);
-      if (particles) particles.material.opacity = Math.min(t * 1.15, .95);
+      const pulse = Math.sin(elapsed * 5.2);
+      const tremor = Math.sin(elapsed * 37) * .006;
+      envelope.position.set(Math.sin(elapsed * 1.7) * .025 + tremor, Math.sin(elapsed * 2.3) * .035, 0);
+      envelope.rotation.set(Math.sin(elapsed * 3.1) * .012, Math.sin(elapsed * 2.4) * .018, tremor * 1.5);
+      envelope.scale.setScalar(1 + Math.max(0, pulse) * .018);
+      if (sealMesh) sealMesh.scale.setScalar(1 + Math.max(0, pulse) * .055);
+    } else if (phase === 'opening') {
+      const t = Math.min((performance.now() - startedAt) / 1450, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      if (flapPivot) flapPivot.rotation.x = -Math.PI * .92 * eased;
+      if (sealMesh) {
+        sealMesh.scale.setScalar(Math.max(.001, 1 - eased * 1.4));
+        sealMesh.rotation.z = eased * Math.PI * 2.5;
+      }
+      envelope.position.y = Math.sin(t * Math.PI) * .18;
+      envelope.rotation.z = Math.sin(t * Math.PI) * .055;
+      envelope.scale.setScalar(1 + Math.sin(t * Math.PI) * .09);
+      if (particles) particles.material.opacity = Math.min(t * 1.25, 1);
       if (t >= 1) revealTitle();
     }
 
     if (particles && phase !== 'idle') {
-      particles.rotation.y = elapsed * .025;
-      particles.rotation.z = Math.sin(elapsed * .18) * .025;
+      particles.rotation.y = elapsed * .035;
+      particles.rotation.z = Math.sin(elapsed * .22) * .04;
+      if (phase === 'opening') {
+        const p = particles.geometry.attributes.position;
+        for (let i = 0; i < p.count; i += 1) {
+          p.array[i * 3 + 1] += .012 + (i % 7) * .001;
+          if (p.array[i * 3 + 1] > 4) p.array[i * 3 + 1] = -4;
+        }
+        p.needsUpdate = true;
+      }
     }
     renderer.render(scene, camera);
   }
@@ -214,6 +259,7 @@
     envelope.rotation.set(.25, -.35, -.55);
     envelope.scale.setScalar(.01);
     if (flapPivot) flapPivot.rotation.x = 0;
+    if (sealMesh) sealMesh.scale.setScalar(1);
     if (particles) particles.material.opacity = 0;
     clock.start();
     cancelAnimationFrame(raf);
@@ -222,9 +268,31 @@
 
   function impact() {
     if (phase !== 'waiting') return;
-    phase = 'impact';
+    window.clearTimeout(openingTimer);
+    if (!renderer || !envelope) {
+      phase = 'opening';
+      intro.classList.add('is-opening');
+      openingTimer = window.setTimeout(revealTitle, 1450);
+      return;
+    }
+    phase = 'opening';
     startedAt = performance.now();
-    intro.classList.add('is-impact');
+    intro.classList.remove('is-impact');
+    intro.classList.add('is-opening');
+    if (particles) particles.material.opacity = .95;
+  }
+
+  function clickEnvelope(event) {
+    if (phase !== 'waiting') return;
+    if (!renderer || !camera || !envelope || !THREE) { impact(); return; }
+    const rect = canvas.getBoundingClientRect();
+    const pointer = new THREE.Vector2(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -((event.clientY - rect.top) / rect.height) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(pointer, camera);
+    if (raycaster.intersectObject(envelope, true).length) impact();
   }
 
   function openAuth() {
@@ -256,7 +324,8 @@
     }, reducedMotion.matches ? 0 : 1050);
   }
 
-  document.getElementById('intro-continue')?.addEventListener('click', impact);
+  canvas.addEventListener('click', clickEnvelope);
+  document.getElementById('intro-fallback-card')?.addEventListener('click', impact);
   document.getElementById('intro-skip')?.addEventListener('click', openAuth);
   document.getElementById('guest-entry')?.addEventListener('click', enterHub);
   document.getElementById('replay-intro')?.addEventListener('click', startIntro);
