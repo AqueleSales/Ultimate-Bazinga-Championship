@@ -123,6 +123,25 @@ def test_guest_registration_action_redirects_to_login(app, client):
     assert response.headers["Location"].endswith("/?screen=auth")
 
 
+def test_authenticated_oauth_return_keeps_session_on_hub_route(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User
+
+    with app.app_context():
+        user = User(name="Conta Autenticada", email="signed-in@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
+
+    response = client.get("/?screen=hub")
+    assert response.status_code == 200
+    assert b'data-authenticated="true"' in response.data
+    assert b"Conta Autenticada" in response.data
+
+
 def test_oauth_landing_preserves_authenticated_entry_screen(client):
     response = client.get("/")
     assert response.status_code == 200
@@ -243,6 +262,8 @@ def test_user_can_create_tournament_and_register(app, client):
 
     response = client.post(f"/competitions/{tournament_id}/register", data={"csrf_token": token}, follow_redirects=True)
     assert response.status_code == 200
+    assert b"VOC\xc3\x8a J\xc3\x81 EST\xc3\x81 INSCRITO" in response.data
+    assert b"CANCELAR INSCRI\xc3\x87\xc3\x83O" in response.data
     with app.app_context():
         participant = db.session.scalar(db.select(Participant).where(Participant.linked_user_id == user_id))
         assert participant is not None
