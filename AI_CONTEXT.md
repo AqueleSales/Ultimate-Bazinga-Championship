@@ -410,3 +410,36 @@ Esta seção substitui decisões visuais anteriores que descreviam a primeira in
 - A CDN Three.js e Google Fonts dependem de conexão externa. Avaliar hospedagem local/versionada para produção.
 - Executar `python -m pytest` e adicionar teste de navegador para os estados da abertura antes de considerar a entrega validada.
 
+
+
+## 15. Estado após a entrega de intro v3 e autenticação OAuth
+
+A branch `feature/cinematic-intro-oauth` corrige a inicialização da intro e adiciona fluxos OAuth.
+
+### Intro v3
+- O relógio Three.js é criado somente depois que o módulo Three.js carrega; antes, a referência global nula causava exceção e interrompia o script.
+- A carta 3D tem envelope com aba articulada, iluminação, partículas e movimento de entrada.
+- A ação de abrir o convite aciona impacto, abertura da aba e revelação tipográfica.
+- A abertura possui fallback visual 2D quando CDN/WebGL falha e também para `prefers-reduced-motion`.
+- Pular abertura, entrar na arena e rever abertura continuam disponíveis.
+- A transição de fogo é visual CSS; o hub continua com módulos de competição em estado placeholder.
+
+### OAuth
+- `bazinga/extensions.py`: instância Authlib OAuth.
+- `bazinga/__init__.py`: registra Google OpenID Connect e Discord OAuth2, configura cookies HttpOnly/SameSite=Lax e injeta o estado da sessão nos templates.
+- `bazinga/routes/auth.py`: endpoints de login/callback para Google e Discord, criação/recuperação de usuário por ID imutável do provedor e logout POST protegido por token CSRF.
+- Não há associação automática de contas apenas por e-mail.
+- Credenciais são lidas exclusivamente de variáveis de ambiente; sem credenciais, os botões ficam desabilitados e o modo visitante continua.
+- Em produção HTTPS, definir `SESSION_COOKIE_SECURE=1`.
+
+### Configuração de OAuth local
+Callbacks:
+- Google: `http://127.0.0.1:5000/auth/google/callback`
+- Discord: `http://127.0.0.1:5000/auth/discord/callback`
+
+Definir `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `DISCORD_CLIENT_ID` e `DISCORD_CLIENT_SECRET` no arquivo local `.env`. Não versionar credenciais.
+
+### Testes
+- Os testes cobrem renderização da homepage, presença do módulo da intro, ausência de credenciais OAuth, rotas de login desconfiguradas e logout com CSRF.
+- A CI do GitHub é a validação final desta branch; não afirmar teste manual de navegador sem executá-lo.
+- Não foi necessária alteração de schema: os modelos `User` e `OAuthAccount` já existiam.
