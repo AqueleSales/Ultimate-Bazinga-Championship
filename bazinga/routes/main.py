@@ -2,7 +2,14 @@ from functools import wraps
 
 from flask import Blueprint, abort, jsonify, redirect, render_template, session, url_for
 
-from ._auth_helpers import get_current_user
+from flask import current_app
+from ..extensions import db
+from ..models import User
+
+def get_current_user():
+    user_id = session.get("user_id")
+    user = db.session.get(User, user_id) if user_id else None
+    return user if user and user.is_active else None
 
 main_bp = Blueprint("main", __name__)
 
