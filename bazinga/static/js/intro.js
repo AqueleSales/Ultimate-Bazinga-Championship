@@ -305,6 +305,7 @@
 
   function startIntro() {
     window.clearTimeout(authTimer);
+    window.clearTimeout(openingTimer);
     auth.hidden = true;
     shell.classList.remove('is-unlocked');
     intro.classList.remove('is-title', 'is-impact', 'is-static', 'is-card-ready', 'is-opening');
@@ -325,7 +326,7 @@
     }
     if (!renderer || !envelope) {
       intro.classList.add('is-fallback');
-      window.setTimeout(() => {
+      openingTimer = window.setTimeout(() => {
         if (phase !== 'arrival') return;
         phase = 'waiting';
         intro.classList.add('is-card-ready');
@@ -483,8 +484,20 @@
       return;
     }
 
-    await init3D();
+    // Render the invitation immediately with the CSS letter. Network/WebGL
+    // initialization must never leave the visitor staring at a blank screen.
     startIntro();
+    const fallbackWasShown = intro.classList.contains('is-fallback');
+    const webglReady = await init3D();
+    if (
+      webglReady &&
+      fallbackWasShown &&
+      intro.classList.contains('is-fallback') &&
+      (phase === 'arrival' || phase === 'waiting')
+    ) {
+      window.clearTimeout(openingTimer);
+      startIntro();
+    }
   })();
   window.UBCTransition = { revealHome: enterHub, replay: startIntro };
 })();
