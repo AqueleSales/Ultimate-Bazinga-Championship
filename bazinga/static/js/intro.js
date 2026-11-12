@@ -166,9 +166,22 @@
       const raw = Math.min((performance.now() - startedAt) / 4800, 1);
       const t = raw * raw * (3 - 2 * raw);
       const drift = (1 - raw);
+      let vertical;
+      if (raw < .22) {
+        const fall = raw / .22;
+        vertical = 3 - 4.2 * (1 - Math.pow(1 - fall, 3));
+      } else if (raw < .62) {
+        const rise = (raw - .22) / .4;
+        vertical = -1.2 + 1.85 * (rise * rise * (3 - 2 * rise));
+      } else if (raw < .86) {
+        vertical = .65 + Math.sin((raw - .62) / .24 * Math.PI) * .28;
+      } else {
+        const slam = (raw - .86) / .14;
+        vertical = .65 * Math.pow(1 - slam, 3);
+      }
       envelope.position.set(
         -5 + 5 * t + Math.sin(raw * Math.PI * 4) * 1.15 * drift,
-        3 - 3 * t + Math.sin(raw * Math.PI * 3) * .72 * drift,
+        vertical,
         -1 + Math.sin(raw * Math.PI * 5) * 1.1 * drift
       );
       envelope.rotation.set(
