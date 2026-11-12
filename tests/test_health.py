@@ -50,8 +50,7 @@ def test_logout_clears_session(client):
 
 
 def test_cinematic_module_has_safe_three_js_fallback(client):
-    response = client.get("/")
+    response = client.get("/static/js/intro.js")
     assert response.status_code == 200
     assert b"await import('https://cdn.jsdelivr.net/npm/three" in response.data
-    assert b"await import" in response.data
     assert b"clock = new THREE.Clock()" in response.data
