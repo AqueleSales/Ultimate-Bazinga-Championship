@@ -272,3 +272,26 @@ def test_user_can_create_tournament_and_register(app, client):
             TournamentRegistration.participant_id == participant.id,
         ))
         assert registration is not None
+
+def test_shared_navigation_script_is_loaded_on_every_page(client):
+    for path in ("/", "/competitions", "/matches", "/ranking"):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert b"js/navigation.js" in response.data
+
+    script = client.get("/static/js/navigation.js")
+    assert script.status_code == 200
+    assert b"history.pushState" in script.data
+    assert b"popstate" in script.data
+    assert b"AbortController" in script.data
+    assert b"X-Requested-With" in script.data
+    assert b"new FormData(form)" in script.data
+    assert b"startViewTransition" in script.data
+
+
+def test_navigation_script_does_not_intercept_oauth_or_login_routes(client):
+    script = client.get("/static/js/navigation.js")
+    assert script.status_code == 200
+    assert b"!url.pathname.startsWith('/auth/')" in script.data
+    assert b"!url.searchParams.has('screen')" in script.data
+    assert b"window.location.assign" in script.data
