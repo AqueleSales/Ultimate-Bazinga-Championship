@@ -286,6 +286,8 @@ def test_shared_navigation_script_is_loaded_on_every_page(client):
     assert b"AbortController" in script.data
     assert b"X-Requested-With" in script.data
     assert b"new FormData(form)" in script.data
+    assert b"method === 'GET'" in script.data
+    assert b"url.searchParams.append(key, value)" in script.data
     assert b"startViewTransition" in script.data
 
 
@@ -295,3 +297,38 @@ def test_navigation_script_does_not_intercept_oauth_or_login_routes(client):
     assert b"!url.pathname.startsWith('/auth/')" in script.data
     assert b"!url.searchParams.has('screen')" in script.data
     assert b"window.location.assign" in script.data
+
+def test_competition_search_filters_public_tournaments(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User, Tournament
+
+    with app.app_context():
+        organizer = User(name="Organizador", email="search-organizer@example.test")
+        db.session.add(organizer)
+        db.session.flush()
+        db.session.add_all([
+            Tournament(
+                title="Summer Championship", slug="summer-championship",
+                description="Disputa de verão", status="registration_open",
+                competition_mode="individual", visibility="public", organizer_id=organizer.id,
+            ),
+            Tournament(
+                title="Winter Cup", slug="winter-cup",
+                description="Competição de inverno", status="registration_open",
+                competition_mode="individual", visibility="public", organizer_id=organizer.id,
+            ),
+        ])
+        db.session.commit()
+
+    response = client.get("/competitions?q=summer")
+    assert response.status_code == 200
+    assert b"Summer Championship" in response.data
+    assert b"Winter Cup" not in response.data
+    assert b'value="summer"' in response.data
+
+
+def test_homepage_search_is_a_real_get_form(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b'action="/competitions"' in response.data
+    assert b'name="q"' in response.data
