@@ -1,0 +1,50 @@
+/* Smooth in-app navigation */
+.page-shell {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.page-shell.is-page-transitioning {
+  opacity: .42;
+  transform: translateY(5px);
+}
+.page-shell[aria-busy="true"] {
+  cursor: progress;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-shell { transition: none; }
+}
+
+.games-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f4eaf7;
+  font: inherit;
+}
+.games-search input::placeholder { color: #89818d; opacity: 1; }
+.games-search button,
+.games-search a {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #d6a16e;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+.games-search:focus-within {
+  outline: 1px solid rgba(214, 161, 110, .55);
+  background: rgba(255,255,255,.06);
+}
+.competition-search {
+  width: min(560px, 100%);
+  margin: 0 0 30px;
+}
+@media (max-width: 620px) {
+  .games-search { gap: 7px; padding: 0 9px; }
+  .games-search button { font-size: 8px; }
+}
