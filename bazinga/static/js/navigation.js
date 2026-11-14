@@ -89,10 +89,10 @@
         return false;
       }
 
-      if (push) {
+      if (push && finalUrl.href !== window.location.href) {
         history.replaceState({ ...(history.state || {}), ubcScrollY: window.scrollY }, '', window.location.href);
         history.pushState({ ubcScrollY: 0 }, '', finalUrl.href);
-      } else if (finalUrl.href !== window.location.href) {
+      } else if (!push && finalUrl.href !== window.location.href) {
         history.replaceState(history.state || {}, '', finalUrl.href);
       }
 
