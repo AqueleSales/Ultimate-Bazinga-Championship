@@ -4,6 +4,8 @@ import unicodedata
 from datetime import datetime, timezone
 from functools import wraps
 
+from sqlalchemy import or_
+
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, session, url_for
 
 from ..extensions import db
@@ -64,10 +66,18 @@ def hub():
 
 @main_bp.get("/competitions")
 def competitions():
+    search_query = (request.args.get("q") or "").strip()[:100]
+    statement = db.select(Tournament).where(
+        Tournament.visibility == "public",
+        Tournament.status.in_(("registration_open", "open", "published")),
+    )
+    if search_query:
+        pattern = f"%{search_query}%"
+        statement = statement.where(
+            or_(Tournament.title.ilike(pattern), Tournament.description.ilike(pattern))
+        )
     tournaments = db.session.scalars(
-        db.select(Tournament)
-        .where(Tournament.visibility == "public", Tournament.status.in_(("registration_open", "open", "published")))
-        .order_by(Tournament.starts_at.asc().nullslast(), Tournament.created_at.desc())
+        statement.order_by(Tournament.starts_at.asc().nullslast(), Tournament.created_at.desc())
     ).all()
     user = get_current_user()
     participant = db.session.scalar(db.select(Participant).where(Participant.linked_user_id == user.id)) if user else None
@@ -79,7 +89,7 @@ def competitions():
                 TournamentRegistration.status.in_(("registered", "confirmed")),
             )
         ).all())
-    return render_template("competitions.html", tournaments=tournaments, registered_ids=registered_ids)
+    return render_template("competitions.html", tournaments=tournaments, registered_ids=registered_ids, search_query=search_query)
 
 
 @main_bp.get("/competitions/<int:tournament_id>")
