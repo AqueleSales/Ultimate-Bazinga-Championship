@@ -140,13 +140,21 @@
     if (form.hasAttribute('data-no-spa') || form.target && form.target !== '_self') return;
 
     const method = (form.method || 'GET').toUpperCase();
-    if (method !== 'POST') return;
+    if (!['GET', 'POST'].includes(method)) return;
 
     const url = new URL(form.action || window.location.href, window.location.href);
     if (!isInternalPageUrl(url) || form.enctype === 'multipart/form-data') return;
 
     event.preventDefault();
-    requestPage(url, { method, formData: new FormData(form) });
+    const formData = new FormData(form);
+    if (method === 'GET') {
+      for (const [key, value] of formData.entries()) {
+        if (typeof value === 'string') url.searchParams.append(key, value);
+      }
+      requestPage(url, { method: 'GET' });
+      return;
+    }
+    requestPage(url, { method, formData });
   });
 
   window.addEventListener('popstate', (event) => {
