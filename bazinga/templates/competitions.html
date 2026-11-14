@@ -21,6 +21,12 @@
       <h1>CAMPEONATOS</h1><h2>Escolha sua próxima disputa.</h2>
       <p>Encontre torneios abertos, confira as regras e garanta sua vaga.</p>
     </section>
+    <form class="games-search competition-search" role="search" method="get" action="{{ url_for('main.competitions') }}">
+      <span aria-hidden="true">⌕</span>
+      <input type="search" name="q" maxlength="100" value="{{ search_query|e }}" placeholder="Filtrar por nome ou descrição..." aria-label="Filtrar campeonatos">
+      <button type="submit" aria-label="Pesquisar campeonatos">BUSCAR</button>
+      {% if search_query %}<a href="{{ url_for('main.competitions') }}">LIMPAR</a>{% endif %}
+    </form>
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
     <section class="competition-create">
       <div><span class="feature-state">ORGANIZADORES</span><h2>Monte sua própria disputa.</h2><p>Crie um campeonato e abra as inscrições para a comunidade.</p></div>
@@ -37,7 +43,7 @@
       {% endif %}
     </section>
     <section class="competition-list">
-      <div class="competition-section-heading"><div><span class="feature-state">INSCRIÇÕES DISPONÍVEIS</span><h2>Próximas disputas</h2></div><span class="competition-count">{{ tournaments|length }} TORNEIO(S)</span></div>
+      <div class="competition-section-heading"><div><span class="feature-state">INSCRIÇÕES DISPONÍVEIS</span><h2>{{ "Resultados da busca" if search_query else "Próximas disputas" }}</h2></div><span class="competition-count">{{ tournaments|length }} TORNEIO(S)</span></div>
       {% if tournaments %}
         <div class="competition-cards">
         {% for tournament in tournaments %}
@@ -48,7 +54,7 @@
         {% endfor %}
         </div>
       {% else %}
-        <div class="module-empty"><div class="module-empty-icon">♜</div><h2>Nenhum campeonato aberto ainda.</h2><p>Crie o primeiro torneio acima ou volte em breve para encontrar novas disputas.</p></div>
+        <div class="module-empty"><div class="module-empty-icon">♜</div><h2>{{ "Nenhum campeonato encontrado." if search_query else "Nenhum campeonato aberto ainda." }}</h2><p>{{ "Tente outro termo de busca." if search_query else "Crie o primeiro torneio acima ou volte em breve para encontrar novas disputas." }}</p></div>
       {% endif %}
     </section>
     <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
