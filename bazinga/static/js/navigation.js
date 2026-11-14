@@ -41,7 +41,6 @@
     const apply = () => {
       main.innerHTML = page.main.innerHTML;
       document.title = page.title || document.title;
-      main.classList.remove('is-page-transitioning');
       main.focus({ preventScroll: true });
     };
 
@@ -49,7 +48,10 @@
       document.startViewTransition(apply);
     } else {
       main.classList.add('is-page-transitioning');
-      apply();
+      requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(() => main.classList.remove('is-page-transitioning'));
+      });
     }
   }
 
