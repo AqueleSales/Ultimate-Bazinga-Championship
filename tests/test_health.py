@@ -357,9 +357,15 @@ def test_homepage_search_is_a_real_get_form(client):
 
 def test_live_match_refresh_script_is_loaded_and_polls():
     from bazinga import create_app
-    from tests.conftest import TestConfig
 
-    app = create_app(TestConfig)
+    class StaticTestConfig:
+        TESTING = True
+        SECRET_KEY = "test-secret-key"
+        SQLALCHEMY_DATABASE_URI = "sqlite://"
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+
+    app = create_app(StaticTestConfig)
     with app.test_client() as client:
         response = client.get("/static/js/matches-live.js")
         assert response.status_code == 200
