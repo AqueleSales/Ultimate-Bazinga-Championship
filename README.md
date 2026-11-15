@@ -60,18 +60,32 @@ Execute `python app.py` e abra `http://127.0.0.1:5000`. Na primeira inicializaç
 python -m pytest
 ```
 
-## Experiência visual
-- Abertura cinematográfica com envelope 3D Three.js, partículas, iluminação e selo.
-- Revelação tipográfica, cortinas e controle para pular a abertura.
-- Fallback 2D se WebGL ou o CDN Three.js não estiver disponível.
-- Respeito a `prefers-reduced-motion`.
-- Tela de entrada, transição de fogo e hub gamer responsivo.
-- Cartões de torneios, partidas, ranking e Hall da Fama permanecem placeholders até integração com dados reais.
+## Hub privado da turma
+O UBC é pensado para um grupo de amigos, não como uma rede social aberta. As áreas internas exigem autenticação Google ou Discord.
+
+- **Campeonatos:** catálogo em grid 2×N com jogo, arte, horário, vagas, local, regras, link de transmissão e inscrição com limite de participantes.
+- **Partidas:** chave eliminatória com rodadas, BYEs e avanço automático dos vencedores. Partidas ao vivo ficam em destaque e a tela consulta atualizações a cada 15 segundos.
+- **Ranking:** lista de jogadores, vitórias registradas, top 3 de MVPs e equipes cadastradas.
+- **Conquistas:** organizadores podem entregar reconhecimentos com imagem e GIF/URL de animação.
+- **Clips:** cada pessoa pode salvar seus próprios links; organizadores também podem entregar clips a outros competidores.
+- **DMs:** conversas privadas entre contas autenticadas.
+- **Comunidade:** mural interno para avisos, publicações e links de clips.
+
+Nesta fase, todo usuário autenticado tem permissão temporária para criar e gerenciar eventos, registrar resultados, entregar conquistas/clips e publicar no mural. Os quatro administradores permanentes ainda não foram definidos no sistema; quando os nomes/contas forem definidos, será necessário introduzir papéis permanentes e restringir essas ações.
+
+**Privacidade:** as páginas internas exigem login, mas o fluxo OAuth ainda permite que uma conta nova seja criada por qualquer pessoa que consiga autenticar com Google/Discord. Para tornar o acesso realmente exclusivo aos amigos, configure uma lista de membros aprovados ou um código de convite antes de disponibilizar o endereço publicamente.
 
 ## Autenticação
 Google usa OpenID Connect; Discord usa OAuth2. O sistema cria/recupera a conta local pelo ID imutável do provedor e não vincula contas automaticamente por e-mail. O estado OAuth é gerenciado pelo Authlib. Cookies de sessão usam HttpOnly e SameSite=Lax; em produção HTTPS, defina `SESSION_COOKIE_SECURE=1`.
 
 A autenticação requer credenciais próprias do mantenedor. Não existem credenciais incluídas no repositório.
 
-## Próximos módulos
-Torneios, inscrições, equipes, chaveamentos, partidas, resultados, rankings, perfis e atualizações em tempo real ainda precisam de implementação e integração com os modelos existentes.
+## Dados e inicialização
+As tabelas novas `tournament_details`, `direct_messages`, `achievements`, `clips` e `community_posts` são criadas por `db.create_all()` na inicialização, sem alterar as tabelas antigas. Em produção, faça backup do banco antes de atualizar o código. O avanço de chaves e os resultados são validados no servidor.
+
+## Limitações conhecidas
+- A atualização de partidas ao vivo usa polling HTTP de 15 segundos, não WebSockets em tempo real.
+- O ranking de MVP é baseado em vitórias individuais registradas; regras avançadas de pontuação, desempate, MVP por partida e estatísticas por jogo ainda precisam ser definidas.
+- O gerador atual implementa mata-mata simples; grupos, dupla eliminação e formatos híbridos ainda não estão disponíveis.
+- Links de imagem, GIF e clips são externos; o sistema salva URLs, não faz upload nem transcodifica arquivos.
+- A experiência visual precisa de validação manual em navegadores desktop e mobile após o deploy.
