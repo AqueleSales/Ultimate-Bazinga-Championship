@@ -8,6 +8,7 @@ Plataforma web para organizar, gerenciar e acompanhar as competições do ecossi
 - Authlib para OAuth 2.0 / OpenID Connect
 - Jinja2, CSS e JavaScript ES Modules
 - PostgreSQL/Neon ou SQLite local
+- Supabase Storage privado para imagens e GIFs
 
 ## Executar localmente
 
@@ -55,6 +56,19 @@ Reinicie o servidor depois de alterar o `.env`. Para produção, cadastre també
 
 Execute `python app.py` e abra `http://127.0.0.1:5000`. Na primeira inicialização, o app cria as tabelas ausentes do banco local automaticamente. O método `create_all` não altera tabelas existentes; alterações futuras de esquema devem ser feitas com Flask-Migrate.
 
+
+## Supabase Storage (mídias privadas)
+
+O UBC usa o projeto Supabase UBC para armazenar arquivos; o banco SQLAlchemy atual continua sendo a fonte dos dados. Crie um bucket privado chamado ubc-media no painel Storage ou execute no SQL Editor:
+
+```sql
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('ubc-media', 'ubc-media', false, 8388608, array['image/png','image/jpeg','image/webp','image/gif'])
+on conflict (id) do update set public=false, file_size_limit=8388608, allowed_mime_types=excluded.allowed_mime_types;
+```
+
+Configure no servidor: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_STORAGE_BUCKET=ubc-media e SUPABASE_STORAGE_SIGNED_URL_TTL=3600. A chave service_role ignora RLS: mantenha-a somente no servidor, nunca no frontend, GitHub ou chat. O UBC envia arquivos pelo backend autenticado e gera URLs assinadas temporárias. O upload aceita PNG, JPG, WebP e GIF até 8 MB. A criação de campeonato permite selecionar ou arrastar a imagem. URLs externas antigas continuam aceitas. Não crie políticas públicas para o bucket.
+
 ## Testes
 
 ```bash
@@ -88,5 +102,5 @@ As tabelas novas `tournament_details`, `direct_messages`, `achievements`, `clips
 - A atualização de partidas ao vivo usa polling HTTP de 15 segundos, não WebSockets em tempo real.
 - O ranking de MVP é baseado em vitórias individuais registradas; regras avançadas de pontuação, desempate, MVP por partida e estatísticas por jogo ainda precisam ser definidas.
 - O gerador atual implementa mata-mata simples; grupos, dupla eliminação e formatos híbridos ainda não estão disponíveis.
-- Links de imagem, GIF e clips são externos; o sistema salva URLs, não faz upload nem transcodifica arquivos.
+- Imagens e GIFs usam Supabase Storage privado; clips de vídeo continuam sendo links externos, sem upload ou transcodificação.
 - A experiência visual precisa de validação manual em navegadores desktop e mobile após o deploy.

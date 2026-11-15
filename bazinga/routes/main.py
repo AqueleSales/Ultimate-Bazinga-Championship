@@ -6,9 +6,10 @@ from functools import wraps
 from urllib.parse import urlparse
 
 from sqlalchemy import or_, func
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 
 from ..extensions import db
+from ..storage import StorageError, StorageNotConfigured, is_storage_reference, signed_media_url, upload_media
 from ..models import (
     Achievement, Clip, CommunityPost, DirectMessage, Match, MatchResult,
     MatchSlot, Participant, Team, Tournament, TournamentAdmin,
@@ -107,7 +108,8 @@ def competitions():
             TournamentRegistration.participant_id == participant.id,
             TournamentRegistration.status.in_(("registered", "confirmed")),
         )).all())
-    return render_template("competitions.html", tournaments=tournaments, registered_ids=registered_ids, search_query=search_query)
+    tournament_images = {t.id: signed_media_url(t.details.image_url) for t in tournaments if t.details and t.details.image_url}
+    return render_template("competitions.html", tournaments=tournaments, registered_ids=registered_ids, search_query=search_query, tournament_images=tournament_images)
 
 
 @main_bp.get("/competitions/<int:tournament_id>")
@@ -128,8 +130,8 @@ def competition_detail(tournament_id):
         db.select(Match).join(TournamentStage).where(TournamentStage.tournament_id == tournament.id)
         .order_by(Match.round_number, Match.match_number)
     ).all()
-    return render_template("competition_detail.html", tournament=tournament, registrations=registrations,
-                           user_registration=user_registration, matches=matches)
+    tournament_image_url = signed_media_url(tournament.details.image_url) if tournament.details and tournament.details.image_url else None
+    return render_template("competition_detail.html", tournament=tournament, registrations=registrations, user_registration=user_registration, matches=matches, tournament_image_url=tournament_image_url)
 
 
 @main_bp.post("/competitions/<int:tournament_id>/register")
@@ -186,6 +188,27 @@ def cancel_registration(tournament_id):
     return redirect(url_for("main.competition_detail", tournament_id=tournament.id))
 
 
+@main_bp.post("/media/upload")
+@login_required
+def upload_media_file():
+    require_csrf()
+    uploaded = request.files.get("file")
+    kind = (request.form.get("kind") or "tournaments").strip()
+    if kind not in ("tournaments", "achievements"):
+        return jsonify(error="Categoria de mídia inválida."), 400
+    if uploaded is None or not uploaded.filename:
+        return jsonify(error="Selecione um arquivo para enviar."), 400
+    try:
+        return jsonify(reference=upload_media(uploaded, kind=kind)), 201
+    except ValueError as exc:
+        return jsonify(error=str(exc)), 400
+    except StorageNotConfigured:
+        return jsonify(error="O armazenamento do Supabase ainda não foi configurado no servidor."), 503
+    except StorageError:
+        current_app.logger.exception("Supabase Storage upload failed")
+        return jsonify(error="Não foi possível enviar o arquivo ao Supabase. Tente novamente."), 502
+
+
 @main_bp.post("/competitions/create")
 @organizer_required
 def create_competition():
@@ -207,7 +230,7 @@ def create_competition():
     db.session.flush()
     details = TournamentDetails(tournament_id=tournament.id,
         game_title=(request.form.get("game_title") or title).strip()[:180],
-        image_url=safe_url(request.form.get("image_url")),
+        image_url=(request.form.get("image_url") or "").strip()[:1000] if is_storage_reference(request.form.get("image_url")) else safe_url(request.form.get("image_url")),
         max_participants=_positive_int(request.form.get("max_participants")),
         venue=(request.form.get("venue") or "").strip()[:180] or None,
         rules=(request.form.get("rules") or "").strip()[:5000] or None,
@@ -402,6 +425,12 @@ def module_page(module):
         context["teams"] = db.session.scalars(db.select(Team).order_by(Team.name.asc())).all()
     elif module == "achievements":
         context["achievements"] = db.session.scalars(db.select(Achievement).order_by(Achievement.created_at.desc()).limit(100)).all()
+        context["achievement_media"] = {
+            item.id: {
+                "image": signed_media_url(item.image_url) if item.image_url else None,
+                "animation": signed_media_url(item.animation_url) if item.animation_url else None,
+            } for item in context["achievements"]
+        }
         context["clips"] = db.session.scalars(db.select(Clip).order_by(Clip.created_at.desc()).limit(100)).all()
         context["users"] = db.session.scalars(db.select(User).where(User.is_active.is_(True)).order_by(User.name.asc())).all()
     elif module == "community":
@@ -494,8 +523,8 @@ def award_achievement():
     else:
         db.session.add(Achievement(user_id=recipient.id, awarded_by_id=get_current_user().id,
             title=title, description=(request.form.get("description") or "").strip()[:500] or None,
-            image_url=safe_url(request.form.get("image_url")),
-            animation_url=safe_url(request.form.get("animation_url"))))
+            image_url=(request.form.get("image_url") or "").strip()[:1000] if is_storage_reference(request.form.get("image_url")) else safe_url(request.form.get("image_url")),
+            animation_url=(request.form.get("animation_url") or "").strip()[:1000] if is_storage_reference(request.form.get("animation_url")) else safe_url(request.form.get("animation_url"))))
         db.session.commit()
         flash("Conquista personalizada entregue!", "success")
     return redirect(url_for("main.module_page", module="achievements"))

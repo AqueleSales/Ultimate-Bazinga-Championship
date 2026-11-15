@@ -1,5 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Campeonatos | Ultimate Bazinga Championship{% endblock %}
+{% block title %}Campeonatos | Ultimate Bazinga Championship<script>
+(() => {
+ const input=document.getElementById("tournament-image-file"), hidden=document.getElementById("tournament-image-reference"), preview=document.getElementById("tournament-image-preview"), status=document.getElementById("tournament-image-status"), form=input?.closest("form");
+ if(!input||!hidden||!preview||!status||!form)return;
+ let uploading=false; const csrf=form.querySelector('[name="csrf_token"]')?.value||"";
+ const upload=async file=>{
+  if(!file)return;
+  if(!["image/png","image/jpeg","image/webp","image/gif"].includes(file.type)||file.size>8*1024*1024){status.textContent="Arquivo inválido. Use PNG, JPG, WebP ou GIF de até 8 MB.";input.value="";return;}
+  uploading=true;hidden.value="";status.textContent="Enviando para o Supabase…";preview.replaceChildren();
+  const img=document.createElement("img");img.alt="Prévia da imagem selecionada";img.src=URL.createObjectURL(file);preview.append(img);
+  const body=new FormData();body.append("file",file);body.append("kind","tournaments");
+  try{const response=await fetch("{{ url_for('main.upload_media_file') }}",{method:"POST",headers:{"X-CSRF-Token":csrf},body});const data=await response.json();if(!response.ok)throw new Error(data.error||"Falha no upload.");hidden.value=data.reference;status.textContent="Imagem enviada e pronta para o campeonato.";}
+  catch(error){status.textContent=error.message||"Não foi possível enviar a imagem.";preview.replaceChildren();}
+  finally{uploading=false;}
+ };
+ input.addEventListener("change",()=>upload(input.files?.[0]));
+ const area=input.closest(".media-upload-field");
+ area?.addEventListener("dragover",e=>{e.preventDefault();area.classList.add("is-dragging");});
+ area?.addEventListener("dragleave",()=>area.classList.remove("is-dragging"));
+ area?.addEventListener("drop",e=>{e.preventDefault();area.classList.remove("is-dragging");const file=e.dataTransfer?.files?.[0];if(file){const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;upload(file);}});
+ form.addEventListener("submit",e=>{if(uploading){e.preventDefault();status.textContent="Aguarde o fim do upload antes de criar o campeonato.";}});
+})();
+</script>
+{% endblock %}
 {% block content %}
 <div class="module-page">
   <aside class="module-sidebar">
@@ -37,7 +60,13 @@
         <label>Nome do evento<input name="title" maxlength="180" required placeholder="Ex.: UBC Summer Cup"></label>
         <label>Jogo<input name="game_title" maxlength="180" required placeholder="Ex.: Super Smash Bros. Ultimate"></label>
         <input type="hidden" name="competition_mode" value="individual"><p class="competition-form-note">Modalidade individual (equipes também podem ser organizadas).</p>
-        <label>Imagem do jogo/evento (URL)<input type="url" name="image_url" placeholder="https://..."></label>
+        <div class="media-upload-field">
+<label for="tournament-image-file">Imagem do jogo/evento</label>
+<input id="tournament-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+<input type="hidden" name="image_url" id="tournament-image-reference">
+<p class="media-upload-help">PNG, JPG, WebP ou GIF · até 8 MB. Também pode arrastar o arquivo.</p>
+<div class="media-upload-preview" id="tournament-image-preview" aria-live="polite"></div>
+<p class="media-upload-status" id="tournament-image-status" role="status"></p></div>
         <label>Data e horário<input type="datetime-local" name="starts_at"></label>
         <label>Quantidade de vagas<input type="number" name="max_participants" min="2" max="512" placeholder="Sem limite"></label>
         <label>Local / plataforma<input name="venue" maxlength="180" placeholder="Ex.: Discord / presencial"></label>
@@ -56,7 +85,7 @@
         <div class="competition-cards">
         {% for tournament in tournaments %}
           <article class="competition-card">
-            <div class="competition-card-art">{% if tournament.details and tournament.details.image_url %}<img class="competition-event-image" src="{{ tournament.details.image_url|e }}" alt="" loading="lazy">{% endif %}<span>{{ tournament.details.game_title if tournament.details and tournament.details.game_title else "UBC" }}</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
+            <div class="competition-card-art">{% if tournament.details and tournament.details.image_url %}<img class="competition-event-image" src="{{ tournament_images.get(tournament.id, '')|e }}" alt="" loading="lazy" onerror="this.hidden=true">{% endif %}<span>{{ tournament.details.game_title if tournament.details and tournament.details.game_title else "UBC" }}</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
             <div class="competition-card-body"><span class="feature-state">INSCRIÇÕES ABERTAS</span><h3>{{ tournament.title }}</h3><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p><div class="competition-meta"><span>{{ tournament.registrations|length }} / {{ tournament.details.max_participants if tournament.details and tournament.details.max_participants else "∞" }} vagas</span><span>{{ tournament.starts_at.strftime('%d/%m · %H:%M') if tournament.starts_at else "Horário a definir" }}</span></div><a class="games-cta" href="{{ url_for('main.competition_detail', tournament_id=tournament.id) }}">VER CAMPEONATO <span>↗</span></a></div>
           </article>
         {% endfor %}
