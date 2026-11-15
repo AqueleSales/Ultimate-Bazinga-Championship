@@ -425,6 +425,12 @@ def module_page(module):
         context["teams"] = db.session.scalars(db.select(Team).order_by(Team.name.asc())).all()
     elif module == "achievements":
         context["achievements"] = db.session.scalars(db.select(Achievement).order_by(Achievement.created_at.desc()).limit(100)).all()
+        context["achievement_media"] = {
+            item.id: {
+                "image": signed_media_url(item.image_url) if item.image_url else None,
+                "animation": signed_media_url(item.animation_url) if item.animation_url else None,
+            } for item in context["achievements"]
+        }
         context["clips"] = db.session.scalars(db.select(Clip).order_by(Clip.created_at.desc()).limit(100)).all()
         context["users"] = db.session.scalars(db.select(User).where(User.is_active.is_(True)).order_by(User.name.asc())).all()
     elif module == "community":
@@ -517,8 +523,8 @@ def award_achievement():
     else:
         db.session.add(Achievement(user_id=recipient.id, awarded_by_id=get_current_user().id,
             title=title, description=(request.form.get("description") or "").strip()[:500] or None,
-            image_url=safe_url(request.form.get("image_url")),
-            animation_url=safe_url(request.form.get("animation_url"))))
+            image_url=(request.form.get("image_url") or "").strip()[:1000] if is_storage_reference(request.form.get("image_url")) else safe_url(request.form.get("image_url")),
+            animation_url=(request.form.get("animation_url") or "").strip()[:1000] if is_storage_reference(request.form.get("animation_url")) else safe_url(request.form.get("animation_url"))))
         db.session.commit()
         flash("Conquista personalizada entregue!", "success")
     return redirect(url_for("main.module_page", module="achievements"))
