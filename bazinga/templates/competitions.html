@@ -33,9 +33,16 @@
       {% if current_user %}
       <form method="post" action="{{ url_for('main.create_competition') }}" class="competition-create-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <label>Título do campeonato<input name="title" maxlength="180" required placeholder="Ex.: Ultimate Summer Cup"></label>
-        <input type="hidden" name="competition_mode" value="individual"><p class="competition-form-note">Inscrições individuais nesta etapa.</p>
-        <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Regras, formato e informações importantes"></textarea></label>
+        <label>Nome do evento<input name="title" maxlength="180" required placeholder="Ex.: UBC Summer Cup"></label>
+        <label>Jogo<input name="game_title" maxlength="180" required placeholder="Ex.: Super Smash Bros. Ultimate"></label>
+        <input type="hidden" name="competition_mode" value="individual"><p class="competition-form-note">Modalidade individual (equipes também podem ser organizadas).</p>
+        <label>Imagem do jogo/evento (URL)<input type="url" name="image_url" placeholder="https://..."></label>
+        <label>Data e horário<input type="datetime-local" name="starts_at"></label>
+        <label>Quantidade de vagas<input type="number" name="max_participants" min="2" max="512" placeholder="Sem limite"></label>
+        <label>Local / plataforma<input name="venue" maxlength="180" placeholder="Ex.: Discord / presencial"></label>
+        <label>Link da transmissão (opcional)<input type="url" name="stream_url" placeholder="https://..."></label>
+        <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Sobre o campeonato e o jogo"></textarea></label>
+        <label>Regras<textarea name="rules" maxlength="5000" rows="3" placeholder="Formato, regras e critérios de desempate"></textarea></label>
         <button class="games-cta" type="submit">CRIAR CAMPEONATO <span>↗</span></button>
       </form>
       {% else %}
@@ -48,8 +55,8 @@
         <div class="competition-cards">
         {% for tournament in tournaments %}
           <article class="competition-card">
-            <div class="competition-card-art"><span>UBC</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
-            <div class="competition-card-body"><span class="feature-state">INSCRIÇÕES ABERTAS</span><h3>{{ tournament.title }}</h3><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p><div class="competition-meta"><span>{{ tournament.registrations|length }} inscrito(s)</span><span>{{ tournament.organizer.name|e }}</span></div><a class="games-cta" href="{{ url_for('main.competition_detail', tournament_id=tournament.id) }}">VER CAMPEONATO <span>↗</span></a></div>
+            <div class="competition-card-art" {% if tournament.details and tournament.details.image_url %}style="background-image:linear-gradient(0deg,#09080ccc,#09080c33),url('{{ tournament.details.image_url|e }}');background-position:center;background-size:cover"{% endif %}><span>{{ tournament.details.game_title if tournament.details and tournament.details.game_title else "UBC" }}</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
+            <div class="competition-card-body"><span class="feature-state">INSCRIÇÕES ABERTAS</span><h3>{{ tournament.title }}</h3><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p><div class="competition-meta"><span>{{ tournament.registrations|length }} / {{ tournament.details.max_participants if tournament.details and tournament.details.max_participants else "∞" }} vagas</span><span>{{ tournament.starts_at.strftime('%d/%m · %H:%M') if tournament.starts_at else "Horário a definir" }}</span></div><a class="games-cta" href="{{ url_for('main.competition_detail', tournament_id=tournament.id) }}">VER CAMPEONATO <span>↗</span></a></div>
           </article>
         {% endfor %}
         </div>
