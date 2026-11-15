@@ -190,3 +190,32 @@ def test_organizer_can_award_clip_to_competitor(app, client):
         clip = db.session.scalar(db.select(Clip))
         assert clip.user_id == recipient_id
         assert clip.awarded_by_id == organizer_id
+
+
+def test_configured_invite_code_is_required_before_new_oauth_accounts(app):
+    from bazinga import create_app
+
+    class InviteConfig:
+        TESTING = True
+        SECRET_KEY = "invite-test-secret"
+        SQLALCHEMY_DATABASE_URI = "sqlite://"
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+        UBC_INVITE_CODE = "friends-only-code"
+
+    invite_app = create_app(InviteConfig)
+    client = invite_app.test_client()
+    page = client.get("/")
+    assert b"CÓDIGO DE CONVITE DA BAZINGA" in page.data
+    with client.session_transaction() as session:
+        csrf = session["_csrf_token"]
+
+    rejected = client.post("/auth/invite", data={"csrf_token": csrf, "invite_code": "wrong"})
+    assert rejected.status_code == 302
+    with client.session_transaction() as session:
+        assert not session.get("ubc_invite_verified")
+
+    accepted = client.post("/auth/invite", data={"csrf_token": csrf, "invite_code": "friends-only-code"})
+    assert accepted.status_code == 302
+    with client.session_transaction() as session:
+        assert session.get("ubc_invite_verified")
