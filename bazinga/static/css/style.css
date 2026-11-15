@@ -653,3 +653,9 @@ body.intro-lock{overflow:hidden}
 .competition-card-art>span,.competition-card-art>small{position:relative;z-index:1}
 .tournament-detail-art{position:absolute;z-index:-1;top:25px;right:-20px;width:75%;height:calc(100% - 25px);object-fit:cover;object-position:center;opacity:.48;mask-image:linear-gradient(90deg,transparent 0%,#000 42%)}
 @media(max-width:720px){.tournament-detail-art{inset:0;width:100%;height:100%;opacity:.2;mask-image:linear-gradient(90deg,transparent,#000)}}
+
+
+.invite-code-form{width:min(100%,390px);display:grid;gap:12px;margin:24px 0}
+.invite-code-form label{color:#d6ad87;font-size:9px;font-weight:900;letter-spacing:.16em}
+.invite-code-form input{width:100%;padding:14px 15px;border:1px solid #ffffff2a;background:#100d12;color:#fff;font:inherit}
+.invite-code-form .games-cta{justify-self:start;cursor:pointer}
