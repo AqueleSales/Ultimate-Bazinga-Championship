@@ -343,6 +343,8 @@ def create_bracket(tournament_id):
 def set_match_live(match_id):
     require_csrf()
     match = db.get_or_404(Match, match_id)
+    if match.status != "scheduled":
+        abort(409, description="Somente partidas agendadas podem ser iniciadas.")
     match.status = "live"
     match.started_at = match.started_at or datetime.now(timezone.utc)
     db.session.commit()
@@ -355,6 +357,8 @@ def set_match_live(match_id):
 def record_match_result(match_id):
     require_csrf()
     match = db.get_or_404(Match, match_id)
+    if match.status not in ("scheduled", "live"):
+        abort(409, description="Esta partida já foi encerrada ou não está disponível.")
     winner_id = _positive_int(request.form.get("winner_slot_id"))
     winner = db.session.scalar(db.select(MatchSlot).where(MatchSlot.id == winner_id, MatchSlot.match_id == match.id)) if winner_id else None
     if not winner or not winner.participant_id and not winner.team_id:
