@@ -206,7 +206,7 @@ def test_configured_invite_code_is_required_before_new_oauth_accounts(app):
     invite_app = create_app(InviteConfig)
     client = invite_app.test_client()
     page = client.get("/")
-    assert b"CÓDIGO DE CONVITE DA BAZINGA" in page.data
+    assert "CÓDIGO DE CONVITE DA BAZINGA".encode() in page.data
     with client.session_transaction() as session:
         csrf = session["_csrf_token"]
 
