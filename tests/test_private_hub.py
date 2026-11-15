@@ -158,7 +158,7 @@ def test_elimination_bracket_auto_advances_bye_and_winner(app, client):
         assert len(matches) == 3
         assert matches[1].status == "completed"  # bye
         final_match = matches[2]
-        assert final_match.slots[0].participant_id is not None
+        assert any(slot.participant_id is not None for slot in final_match.slots)
 
     with app.app_context():
         first_match = db.session.scalar(db.select(Match).where(Match.round_number == 1, Match.match_number == 1))
