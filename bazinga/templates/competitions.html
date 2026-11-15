@@ -56,7 +56,7 @@
         <div class="competition-cards">
         {% for tournament in tournaments %}
           <article class="competition-card">
-            <div class="competition-card-art" {% if tournament.details and tournament.details.image_url %}style="background-image:linear-gradient(0deg,#09080ccc,#09080c33),url('{{ tournament.details.image_url|e }}');background-position:center;background-size:cover"{% endif %}><span>{{ tournament.details.game_title if tournament.details and tournament.details.game_title else "UBC" }}</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
+            <div class="competition-card-art">{% if tournament.details and tournament.details.image_url %}<img class="competition-event-image" src="{{ tournament.details.image_url|e }}" alt="" loading="lazy">{% endif %}<span>{{ tournament.details.game_title if tournament.details and tournament.details.game_title else "UBC" }}</span><small>{{ "EQUIPES" if tournament.competition_mode == "team" else "INDIVIDUAL" }}</small></div>
             <div class="competition-card-body"><span class="feature-state">INSCRIÇÕES ABERTAS</span><h3>{{ tournament.title }}</h3><p>{{ tournament.description or "Disputa oficial do Ultimate Bazinga Championship." }}</p><div class="competition-meta"><span>{{ tournament.registrations|length }} / {{ tournament.details.max_participants if tournament.details and tournament.details.max_participants else "∞" }} vagas</span><span>{{ tournament.starts_at.strftime('%d/%m · %H:%M') if tournament.starts_at else "Horário a definir" }}</span></div><a class="games-cta" href="{{ url_for('main.competition_detail', tournament_id=tournament.id) }}">VER CAMPEONATO <span>↗</span></a></div>
           </article>
         {% endfor %}
