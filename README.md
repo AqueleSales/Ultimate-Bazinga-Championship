@@ -46,6 +46,7 @@ GOOGLE_CLIENT_ID=seu-client-id-google
 GOOGLE_CLIENT_SECRET=seu-client-secret-google
 DISCORD_CLIENT_ID=seu-client-id-discord
 DISCORD_CLIENT_SECRET=seu-client-secret-discord
+UBC_INVITE_CODE=um-codigo-longo-compartilhado-somente-com-os-amigos
 ```
 
 Reinicie o servidor depois de alterar o `.env`. Para produção, cadastre também os callbacks HTTPS com o domínio real, por exemplo `https://SEU-DOMINIO/auth/google/callback` e `https://SEU-DOMINIO/auth/discord/callback`, e defina `SESSION_COOKIE_SECURE=1`. O endereço cadastrado no provedor precisa corresponder exatamente ao endereço público usado pelo site.
@@ -73,7 +74,7 @@ O UBC é pensado para um grupo de amigos, não como uma rede social aberta. As �
 
 Nesta fase, todo usuário autenticado tem permissão temporária para criar e gerenciar eventos, registrar resultados, entregar conquistas/clips e publicar no mural. Os quatro administradores permanentes ainda não foram definidos no sistema; quando os nomes/contas forem definidos, será necessário introduzir papéis permanentes e restringir essas ações.
 
-**Privacidade:** as páginas internas exigem login, mas o fluxo OAuth ainda permite que uma conta nova seja criada por qualquer pessoa que consiga autenticar com Google/Discord. Para tornar o acesso realmente exclusivo aos amigos, configure uma lista de membros aprovados ou um código de convite antes de disponibilizar o endereço publicamente.
+**Privacidade:** as páginas internas exigem login. Para restringir também a criação de novas contas, configure `UBC_INVITE_CODE` no ambiente de produção e compartilhe esse código somente com os amigos. Sem essa variável, qualquer pessoa que consiga autenticar com Google/Discord ainda pode criar uma conta. Contas existentes também precisam validar o código enquanto ele estiver configurado.
 
 ## Autenticação
 Google usa OpenID Connect; Discord usa OAuth2. O sistema cria/recupera a conta local pelo ID imutável do provedor e não vincula contas automaticamente por e-mail. O estado OAuth é gerenciado pelo Authlib. Cookies de sessão usam HttpOnly e SameSite=Lax; em produção HTTPS, defina `SESSION_COOKIE_SECURE=1`.
