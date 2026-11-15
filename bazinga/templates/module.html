@@ -24,6 +24,7 @@
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
 
     {% if module_key == 'matches' %}
+      <div id="live-matches" aria-live="polite">
       {% if live_matches %}
       <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state live-state">● TRANSMISSÃO AO VIVO</span><h2>Acontecendo agora</h2></div></div>
         <div class="hub-card-grid">
@@ -32,7 +33,8 @@
           {% if current_user %}<form method="post" action="{{ url_for('main.record_match_result', match_id=match.id) }}" class="inline-admin-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Vencedor<select name="winner_slot_id" required>{% for slot in match.slots %}{% if slot.participant or slot.team %}<option value="{{ slot.id }}">{{ slot.participant.display_name if slot.participant else slot.team.name }}</option>{% endif %}{% endfor %}</select></label><button class="games-cta" type="submit">REGISTRAR RESULTADO</button></form>{% endif %}
         </article>{% endfor %}</div>
       </section>
-      {% endif %}
+      {% else %}<section class="hub-section"><span class="feature-state">SEM PARTIDA AO VIVO</span><h2>Nenhum confronto acontecendo agora.</h2><p class="hub-muted">Quando um organizador iniciar uma partida, ela aparecerá automaticamente aqui.</p></section>{% endif %}
+      </div>
       <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CHAVES E HISTÓRICO</span><h2>Outras partidas</h2></div></div>
         {% if other_matches %}<div class="hub-card-grid">{% for match in other_matches %}<article class="hub-card match-card"><span class="feature-state">{{ match.status|upper }}</span><h3>{{ match.stage.tournament.title }}</h3><p>{{ match.stage.name }} · Rodada {{ match.round_number or 1 }} · Jogo {{ match.match_number }}</p><div class="match-versus">{% for slot in match.slots %}<strong>{{ slot.participant.display_name if slot.participant else (slot.team.name if slot.team else 'A definir') }}</strong>{% if not loop.last %}<span>VS</span>{% endif %}{% endfor %}</div>
           {% if match.result %}<p class="winner-line">Vencedor: {{ match.result.winner_slot.participant.display_name if match.result.winner_slot.participant else match.result.winner_slot.team.name }}</p>{% elif current_user and match.status == 'scheduled' %}<form method="post" action="{{ url_for('main.set_match_live', match_id=match.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">INICIAR AO VIVO</button></form>{% endif %}
