@@ -353,3 +353,16 @@ def test_homepage_search_is_a_real_get_form(client):
     assert response.status_code == 200
     assert b'action="/competitions"' in response.data
     assert b'name="q"' in response.data
+
+
+def test_live_match_refresh_script_is_loaded_and_polls():
+    from bazinga import create_app
+    from tests.conftest import TestConfig
+
+    app = create_app(TestConfig)
+    with app.test_client() as client:
+        response = client.get("/static/js/matches-live.js")
+        assert response.status_code == 200
+        assert b"window.setInterval(refreshLiveMatches, 15000)" in response.data
+        page = client.get("/")
+        assert b"js/matches-live.js" in page.data
