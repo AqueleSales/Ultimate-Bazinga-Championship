@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Conversa com {{ other_user.name }} | Ultimate Bazinga Championship{% endblock %}
+{% block content %}
+<div class="module-page">
+  <aside class="module-sidebar"><a class="games-logo" href="{{ url_for('main.championship_home') }}"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a><nav class="sidebar-nav"><a href="{{ url_for('main.championship_home') }}">◈ Visão geral</a><a href="{{ url_for('main.competitions') }}">♜ Campeonatos</a><a href="{{ url_for('main.module_page', module='matches') }}">⚔ Partidas</a><a href="{{ url_for('main.module_page', module='ranking') }}">♛ Ranking</a><a href="{{ url_for('main.module_page', module='achievements') }}">✧ Conquistas</a><a href="{{ url_for('main.module_page', module='community') }}">♧ Comunidade</a><a class="is-current" href="{{ url_for('main.module_page', module='dm') }}">✉ Mensagens</a></nav><div class="sidebar-bottom"><span>BAZINGA HUB</span><small>CONVERSA PRIVADA</small></div></aside>
+  <main class="module-main"><div class="module-topline"><a href="{{ url_for('main.module_page', module='dm') }}">← TODAS AS CONVERSAS</a><span>DM PRIVADA</span></div>
+    <section class="module-hero dm-hero"><p class="games-kicker">MENSAGEM DIRETA</p><h1>{{ other_user.name|e }}</h1><p>Esta conversa é visível apenas para os participantes.</p></section>
+    <section class="dm-thread" aria-label="Histórico de mensagens">
+      {% if messages %}{% for message in messages %}<article class="dm-message {% if message.sender_id == current_user.id %}mine{% endif %}"><strong>{{ 'Você' if message.sender_id == current_user.id else other_user.name|e }}</strong><p>{{ message.body|e }}</p><time>{{ message.created_at.strftime('%d/%m/%Y %H:%M') }}</time></article>{% endfor %}{% else %}<div class="module-empty compact-empty"><h2>Comece a conversa.</h2><p>Envie a primeira mensagem para {{ other_user.name|e }}.</p></div>{% endif %}
+    </section>
+    <form class="dm-compose" method="post" action="{{ url_for('main.send_direct_message', user_id=other_user.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="dm-body">Sua mensagem</label><textarea id="dm-body" name="body" maxlength="4000" rows="3" required placeholder="Escreva sua mensagem..."></textarea><button class="games-cta" type="submit">ENVIAR MENSAGEM ↗</button></form>
+  </main>
+</div>
+{% endblock %}
