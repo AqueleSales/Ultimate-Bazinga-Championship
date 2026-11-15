@@ -282,7 +282,16 @@ def test_user_can_create_tournament_and_register(app, client):
         ))
         assert registration is not None
 
-def test_shared_navigation_script_is_loaded_on_every_page(client):
+def test_shared_navigation_script_is_loaded_on_every_page(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User
+    with app.app_context():
+        user = User(name="Navegador", email="navigation-user@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
     for path in ("/", "/competitions", "/matches", "/ranking"):
         response = client.get(path)
         assert response.status_code == 200
@@ -328,7 +337,10 @@ def test_competition_search_filters_public_tournaments(app, client):
             ),
         ])
         db.session.commit()
+        organizer_id = organizer.id
 
+    with client.session_transaction() as session:
+        session["user_id"] = organizer_id
     response = client.get("/competitions?q=summer")
     assert response.status_code == 200
     assert b"Summer Championship" in response.data
