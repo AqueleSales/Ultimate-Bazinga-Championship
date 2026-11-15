@@ -22,3 +22,7 @@ __all__ = [
     "MatchSlot",
     "MatchResult",
 ]
+
+from .social import Achievement, Clip, CommunityPost, DirectMessage, TournamentDetails
+
+__all__ += ["Achievement", "Clip", "CommunityPost", "DirectMessage", "TournamentDetails"]
