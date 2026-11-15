@@ -89,6 +89,7 @@ def hub():
 
 
 @main_bp.get("/competitions")
+@login_required
 def competitions():
     search_query = (request.args.get("q") or "").strip()[:100]
     statement = db.select(Tournament).where(
@@ -111,6 +112,7 @@ def competitions():
 
 
 @main_bp.get("/competitions/<int:tournament_id>")
+@login_required
 def competition_detail(tournament_id):
     tournament = db.get_or_404(Tournament, tournament_id)
     user = get_current_user()
@@ -304,6 +306,7 @@ def record_match_result(match_id):
 
 
 @main_bp.get("/<module>")
+@login_required
 def module_page(module):
     data = MODULES.get(module)
     if not data:
