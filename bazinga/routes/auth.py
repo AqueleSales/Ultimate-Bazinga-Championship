@@ -16,6 +16,22 @@ def _provider(name):
     return client
 
 
+@auth_bp.post("/invite")
+def verify_invite():
+    expected_csrf = session.get("_csrf_token", "")
+    supplied_csrf = request.form.get("csrf_token", "")
+    if not expected_csrf or not hmac.compare_digest(expected_csrf, supplied_csrf):
+        abort(400, description="Token de segurança inválido.")
+    invite_code = current_app.config.get("UBC_INVITE_CODE")
+    supplied_code = (request.form.get("invite_code") or "").strip()
+    if not invite_code or not hmac.compare_digest(str(invite_code), supplied_code):
+        flash("Código de convite inválido.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
+    session["ubc_invite_verified"] = True
+    flash("Convite validado. Agora você pode entrar na arena.", "success")
+    return redirect(url_for("main.championship_home", screen="auth"))
+
+
 @auth_bp.get("/google")
 def google_login():
     client = _provider("google")
@@ -78,6 +94,10 @@ def discord_callback():
 
 
 def _sign_in(provider, provider_id, name, email, avatar_url):
+    invite_code = current_app.config.get("UBC_INVITE_CODE")
+    if invite_code and not session.get("ubc_invite_verified"):
+        flash("Este UBC é privado. Valide o código de convite antes de entrar.", "error")
+        return redirect(url_for("main.championship_home", screen="auth"))
     account = db.session.scalar(
         db.select(OAuthAccount).where(
             OAuthAccount.provider == provider,

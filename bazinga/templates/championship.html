@@ -14,6 +14,7 @@
             <a href="{{ url_for('main.module_page', module='ranking') }}"><span>♜</span> Ranking</a>
             <a href="{{ url_for('main.module_page', module='achievements') }}"><span>✧</span> Conquistas</a>
             <a href="{{ url_for('main.module_page', module='community') }}"><span>♧</span> Comunidade</a>
+            <a href="{{ url_for('main.module_page', module='dm') }}"><span>✉</span> Mensagens</a>
         </nav>
         <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div>
     </aside>
@@ -25,7 +26,7 @@
                 <input type="search" name="q" maxlength="100" placeholder="Buscar campeonatos..." aria-label="Buscar campeonatos">
                 <button type="submit" aria-label="Pesquisar">↗</button>
             </form>
-            <div class="games-top-actions"><span class="topbar-status"><i></i> ARENA EM PREPARAÇÃO</span>{% if current_user and current_user.avatar_url %}<img class="topbar-avatar" src="{{ current_user.avatar_url|e }}" alt="Foto de {{ current_user.name|e }}" referrerpolicy="no-referrer">{% elif current_user %}<span class="topbar-avatar" aria-label="Perfil de {{ current_user.name|e }}">{{ current_user.name[:1]|upper|e }}</span>{% else %}<a class="topbar-avatar" href="{{ url_for('main.championship_home', screen='auth') }}" aria-label="Entrar">B</a>{% endif %}</div>
+            <div class="games-top-actions"><span class="topbar-status"><i></i> {% if current_user %}BAZINGA PRIVADA{% else %}ENTRADA DE COMPETIDORES{% endif %}</span>{% if current_user and current_user.avatar_url %}<img class="topbar-avatar" src="{{ current_user.avatar_url|e }}" alt="Foto de {{ current_user.name|e }}" referrerpolicy="no-referrer">{% elif current_user %}<span class="topbar-avatar" aria-label="Perfil de {{ current_user.name|e }}">{{ current_user.name[:1]|upper|e }}</span>{% else %}<a class="topbar-avatar" href="{{ url_for('main.championship_home', screen='auth') }}" aria-label="Entrar">B</a>{% endif %}</div>
         </div>
 
         <section class="games-hero" id="overview">
@@ -33,7 +34,7 @@
             <div class="games-hero-copy">
                 <p class="games-kicker">BAZINGA HUB <span>/</span> CENTRAL COMPETITIVA</p>
                 <h1>THE ARENA<br><em>AWAITS.</em></h1>
-                <p>O próximo capítulo da competição começa aqui. Reúna sua equipe, acompanhe os confrontos e dispute seu lugar na história.</p>
+                <p>O espaço da nossa turma. Descubra os campeonatos, acompanhe as chaves, converse com os amigos e guarde os melhores momentos.</p>
                 <a class="games-cta" href="{{ url_for('main.module_page', module='competitions') }}">EXPLORAR CAMPEONATOS <span>↗</span></a>
             </div>
             <div class="games-hero-foot"><span>01 / COMPETIR</span><span>02 / CONQUISTAR</span><span>03 / MARCAR HISTÓRIA</span></div>
@@ -46,10 +47,10 @@
         <section class="games-feature-grid" id="competitions">
             <article class="games-feature feature-tournament">
                 <div class="feature-image feature-image-tournament" aria-hidden="true"><span class="feature-orb">UBC</span></div>
-                <div class="feature-copy"><p class="feature-eyebrow">01 / O PRÓXIMO EVENTO</p><h2>THE NEXT<br>CHAMPION.</h2><p>Explore torneios abertos, confira os detalhes e faça sua inscrição na central de campeonatos.</p><span class="feature-state">CATÁLOGO DE CAMPEONATOS ATIVO</span></div>
+                <div class="feature-copy"><p class="feature-eyebrow">01 / O PRÓXIMO EVENTO</p><h2>THE NEXT<br>CHAMPION.</h2><p>Veja os jogos, horários, vagas, regras e todos os detalhes dos próximos eventos da turma.</p><span class="feature-state">CATÁLOGO DE CAMPEONATOS ATIVO</span></div>
             </article>
             <article class="games-feature feature-live" id="matches">
-                <div class="feature-copy"><p class="feature-eyebrow">02 / AO VIVO</p><h2>GAME<br>ON.</h2><p>Nenhuma partida publicada no momento.</p><span class="feature-state">AGUARDANDO CONFRONTOS</span></div>
+                <div class="feature-copy"><p class="feature-eyebrow">02 / AO VIVO</p><h2>GAME<br>ON.</h2><p>As chaves dos campeonatos e as partidas ao vivo aparecem aqui quando os organizadores publicarem os confrontos.</p><span class="feature-state">AGUARDANDO CONFRONTOS</span></div>
                 <div class="feature-image feature-image-live" aria-hidden="true"><span>VS</span></div>
             </article>
         </section>
@@ -57,7 +58,7 @@
         <section class="games-lower-grid">
             <article class="games-mini-card" id="ranking"><span class="mini-index">03</span><span class="mini-symbol">♜</span><p>RANKING</p><strong>O topo está esperando.</strong><small>Classificações oficiais em breve.</small></article>
             <article class="games-mini-card" id="hall"><span class="mini-index">04</span><span class="mini-symbol">✧</span><p>HALL DA FAMA</p><strong>Entre para a história.</strong><small>Perfis e conquistas serão adicionados.</small></article>
-            <article class="games-mini-card" id="community"><span class="mini-index">05</span><span class="mini-symbol">♧</span><p>COMUNIDADE</p><strong>Encontre sua rivalidade.</strong><small>Recursos sociais em desenvolvimento.</small></article>
+            <article class="games-mini-card" id="community"><span class="mini-index">05</span><span class="mini-symbol">♧</span><p>COMUNIDADE</p><strong>Encontre sua rivalidade.</strong><small>Um mural privado para avisos, conversas e clips compartilhados.</small></article>
         </section>
         <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
     </div>

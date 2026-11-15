@@ -6,31 +6,94 @@
     <a class="games-logo" href="{{ url_for('main.championship_home') }}"><span class="games-logo-mark">B</span><span>BAZINGA<small>CHAMPIONSHIP</small></span></a>
     <nav class="sidebar-nav" aria-label="Navegação do campeonato">
       <a href="{{ url_for('main.championship_home') }}"><span>◈</span> Visão geral</a>
-      <a class="{% if module_key == 'competitions' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='competitions') }}"><span>⌕</span> Campeonatos</a>
+      <a class="{% if module_key == 'competitions' %}is-current{% endif %}" href="{{ url_for('main.competitions') }}"><span>⌕</span> Campeonatos</a>
       <a class="{% if module_key == 'matches' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='matches') }}"><span>⚔</span> Partidas</a>
       <a class="{% if module_key == 'ranking' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='ranking') }}"><span>♜</span> Ranking</a>
       <a class="{% if module_key == 'achievements' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='achievements') }}"><span>✧</span> Conquistas</a>
       <a class="{% if module_key == 'community' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='community') }}"><span>♧</span> Comunidade</a>
+      <a class="{% if module_key == 'dm' %}is-current{% endif %}" href="{{ url_for('main.module_page', module='dm') }}"><span>✉</span> Mensagens</a>
     </nav>
-    <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ULTIMATE CHAMPIONSHIP / 001</small></div>
+    <div class="sidebar-bottom"><span>BAZINGA HUB</span><small>ESPAÇO PRIVADO DOS AMIGOS</small></div>
   </aside>
   <main class="module-main">
-    <div class="module-topline"><a href="{{ url_for('main.championship_home') }}">← VOLTAR À VISÃO GERAL</a><span>ULTIMATE BAZINGA CHAMPIONSHIP</span></div>
+    <div class="module-topline"><a href="{{ url_for('main.championship_home') }}">← VOLTAR À VISÃO GERAL</a><span>ULTIMATE BAZINGA CHAMPIONSHIP / HUB PRIVADO</span></div>
     <section class="module-hero">
-      <p class="games-kicker">{{ module.eyebrow }}</p>
-      <div class="module-hero-icon" aria-hidden="true">{{ module.icon }}</div>
-      <h1>{{ module.title }}</h1>
-      <h2>{{ module.subtitle }}</h2>
-      <p>{{ module.description }}</p>
+      <p class="games-kicker">{{ module.eyebrow }}</p><div class="module-hero-icon" aria-hidden="true">{{ module.icon }}</div>
+      <h1>{{ module.title }}</h1><h2>{{ module.subtitle }}</h2><p>{{ module.description }}</p>
     </section>
-    <section class="module-empty">
-      <span class="feature-state">{{ module.status }}</span>
-      <div class="module-empty-icon" aria-hidden="true">{{ module.icon }}</div>
-      <h2>{{ module.empty_title }}</h2>
-      <p>{{ module.empty_description }}</p>
-      <a class="games-cta" href="{{ url_for('main.championship_home') }}">VOLTAR AO HUB <span>↗</span></a>
-    </section>
-    <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
+
+    {% if module_key == 'matches' %}
+      <div id="live-matches" aria-live="polite">
+      {% if live_matches %}
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state live-state">● TRANSMISSÃO AO VIVO</span><h2>Acontecendo agora</h2></div></div>
+        <div class="hub-card-grid">
+        {% for match in live_matches %}<article class="hub-card match-card live-card"><span class="feature-state live-state">● AO VIVO</span><h3>{{ match.stage.tournament.title }}</h3><p>{{ match.stage.name }} · Rodada {{ match.round_number or 1 }}</p>
+          <div class="match-versus">{% for slot in match.slots %}<strong>{{ slot.participant.display_name if slot.participant else (slot.team.name if slot.team else 'A definir') }}</strong>{% if not loop.last %}<span>VS</span>{% endif %}{% endfor %}</div>
+          {% if current_user %}<form method="post" action="{{ url_for('main.record_match_result', match_id=match.id) }}" class="inline-admin-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Vencedor<select name="winner_slot_id" required>{% for slot in match.slots %}{% if slot.participant or slot.team %}<option value="{{ slot.id }}">{{ slot.participant.display_name if slot.participant else slot.team.name }}</option>{% endif %}{% endfor %}</select></label><button class="games-cta" type="submit">REGISTRAR RESULTADO</button></form>{% endif %}
+        </article>{% endfor %}</div>
+      </section>
+      {% else %}<section class="hub-section"><span class="feature-state">SEM PARTIDA AO VIVO</span><h2>Nenhum confronto acontecendo agora.</h2><p class="hub-muted">Quando um organizador iniciar uma partida, ela aparecerá automaticamente aqui.</p></section>{% endif %}
+      </div>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CHAVES E HISTÓRICO</span><h2>Outras partidas</h2></div></div>
+        {% if other_matches %}<div class="hub-card-grid">{% for match in other_matches %}<article class="hub-card match-card"><span class="feature-state">{{ match.status|upper }}</span><h3>{{ match.stage.tournament.title }}</h3><p>{{ match.stage.name }} · Rodada {{ match.round_number or 1 }} · Jogo {{ match.match_number }}</p><div class="match-versus">{% for slot in match.slots %}<strong>{{ slot.participant.display_name if slot.participant else (slot.team.name if slot.team else 'A definir') }}</strong>{% if not loop.last %}<span>VS</span>{% endif %}{% endfor %}</div>
+          {% if match.result %}<p class="winner-line">Vencedor: {{ match.result.winner_slot.participant.display_name if match.result.winner_slot.participant else match.result.winner_slot.team.name }}</p>{% elif current_user and match.status == 'scheduled' %}<form method="post" action="{{ url_for('main.set_match_live', match_id=match.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">INICIAR AO VIVO</button></form>{% endif %}
+          <a class="text-link" href="{{ url_for('main.competition_detail', tournament_id=match.stage.tournament_id) }}">ABRIR CAMPEONATO ↗</a></article>{% endfor %}</div>
+        {% else %}<div class="module-empty"><h2>Nenhuma chave criada ainda.</h2><p>Quando um organizador gerar as chaves de um campeonato, os confrontos aparecerão aqui.</p><a class="games-cta" href="{{ url_for('main.competitions') }}">VER CAMPEONATOS ↗</a></div>{% endif %}
+      </section>
+
+    {% elif module_key == 'ranking' %}
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">TOP 3 / VITÓRIAS REGISTRADAS</span><h2>MVPs da arena</h2></div></div>
+        {% if mvp and wins.values()|sum > 0 %}<div class="mvp-grid">{% for player in mvp %}{% if wins.get(player.id, 0) > 0 %}<article class="mvp-card"><span>#{{ loop.index }}</span><strong>{{ player.display_name }}</strong><small>{{ wins.get(player.id, 0) }} vitória(s)</small></article>{% endif %}{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>A disputa pelo MVP ainda não começou.</h2><p>Os MVPs serão calculados automaticamente a partir dos resultados oficiais.</p></div>{% endif %}
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CLASSIFICAÇÃO INDIVIDUAL</span><h2>Jogadores</h2></div><span class="competition-count">{{ participants|length }} PARTICIPANTE(S)</span></div>
+        {% if participants %}<ol class="competition-roster">{% for player in participants|sort(attribute='display_name') %}<li><span class="roster-number">{{ "%02d"|format(loop.index) }}</span><strong>{{ player.display_name|e }}</strong><span>{{ wins.get(player.id, 0) }} VITÓRIA(S)</span></li>{% endfor %}</ol>{% else %}<div class="module-empty compact-empty"><h2>Nenhum jogador cadastrado.</h2><p>Os jogadores entram no ranking ao participar dos campeonatos.</p></div>{% endif %}
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">MODALIDADE EM EQUIPE</span><h2>Times</h2></div></div>
+        {% if teams %}<div class="hub-card-grid">{% for team in teams %}<article class="hub-card"><h3>{{ team.name }}</h3><p>{{ team.tag or 'Equipe' }} · {{ team.tournament.title }}</p></article>{% endfor %}</div>{% else %}<p class="hub-muted">Ainda não há equipes registradas. O ranking de times será preenchido quando houver campeonatos em equipe.</p>{% endif %}
+      </section>
+
+    {% elif module_key == 'achievements' %}
+      <section class="competition-create"><div><span class="feature-state">ORGANIZADORES / TODOS PODEM GERENCIAR</span><h2>Entregar conquista personalizada</h2><p>Crie um reconhecimento com arte própria e, se quiser, uma animação.</p></div>
+        <form class="competition-create-form" method="post" action="{{ url_for('main.award_achievement') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <label>Competidor<select name="user_id" required><option value="">Selecione alguém</option>{% for user in users %}<option value="{{ user.id }}">{{ user.name }}</option>{% endfor %}</select></label>
+          <label>Título<input name="title" maxlength="120" required placeholder="Ex.: Lenda do comeback"></label>
+          <label>Descrição<textarea name="description" rows="2" maxlength="500" placeholder="Por que essa conquista foi entregue?"></textarea></label>
+          <label>Imagem (URL)<input type="url" name="image_url" placeholder="https://..."></label>
+          <label>Animação/GIF (URL)<input type="url" name="animation_url" placeholder="https://..."></label>
+          <button class="games-cta" type="submit">ENTREGAR CONQUISTA ↗</button>
+        </form>
+      </section>
+      <section class="competition-create"><div><span class="feature-state">ORGANIZADORES</span><h2>Entregar um clip</h2><p>O organizador também pode salvar um momento diretamente no perfil de alguém.</p></div>
+        <form class="competition-create-form" method="post" action="{{ url_for('main.award_clip') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Competidor<select name="user_id" required><option value="">Selecione alguém</option>{% for user in users %}<option value="{{ user.id }}">{{ user.name }}</option>{% endfor %}</select></label><label>Título<input name="title" maxlength="140" required placeholder="Ex.: A jogada da final"></label><label>Link do clip<input type="url" name="url" required placeholder="https://..."></label><label>Descrição<input name="description" maxlength="500" placeholder="Contexto do momento"></label><button class="games-cta" type="submit">ENTREGAR CLIP ↗</button></form>
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">GALERIA DE CONQUISTAS</span><h2>Hall da fama</h2></div></div>
+        {% if achievements %}<div class="hub-card-grid">{% for item in achievements %}<article class="hub-card achievement-card">{% if item.animation_url %}<img src="{{ item.animation_url|e }}" alt="" loading="lazy">{% elif item.image_url %}<img src="{{ item.image_url|e }}" alt="" loading="lazy">{% else %}<div class="achievement-placeholder">✧</div>{% endif %}<h3>{{ item.title }}</h3><p>{{ item.description or 'Reconhecimento especial do UBC.' }}</p><small>ENTREGUE A {{ item.user.name|upper|e }} · POR {{ item.awarded_by.name if item.awarded_by else 'UBC' }}</small></article>{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>As primeiras lendas ainda serão reconhecidas.</h2><p>Os organizadores podem entregar conquistas personalizadas acima.</p></div>{% endif %}
+      </section>
+      <section class="competition-create"><div><span class="feature-state">SUA COLEÇÃO</span><h2>Salvar um clip</h2><p>Guarde links de momentos marcantes para rever depois.</p></div>
+        <form class="competition-create-form" method="post" action="{{ url_for('main.save_clip') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Título<input name="title" maxlength="140" required placeholder="Ex.: Final insana"></label><label>Link do vídeo<input type="url" name="url" required placeholder="https://..."></label><label>Descrição<input name="description" maxlength="500" placeholder="Contexto do momento"></label><button class="games-cta" type="submit">SALVAR CLIP ↗</button></form>
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CLIPS SALVOS PELA TURMA</span><h2>Melhores momentos</h2></div></div>
+        {% if clips %}<div class="hub-card-grid">{% for clip in clips %}<article class="hub-card"><span class="feature-state">{{ clip.user.name|upper|e }}</span><h3>{{ clip.title }}</h3><p>{{ clip.description or 'Momento salvo na coleção.' }}</p><a class="text-link" href="{{ clip.url|e }}" target="_blank" rel="noopener noreferrer">ASSISTIR CLIP ↗</a></article>{% endfor %}</div>{% else %}<p class="hub-muted">Ainda não há clips salvos.</p>{% endif %}
+      </section>
+
+    {% elif module_key == 'community' %}
+      <section class="competition-create"><div><span class="feature-state">MURAL PRIVADO</span><h2>Compartilhe com a turma</h2><p>Publique avisos, comentários e links de clips para todos os amigos.</p></div>
+        <form class="competition-create-form" method="post" action="{{ url_for('main.create_community_post') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Publicação<textarea name="body" rows="4" maxlength="2000" required placeholder="O que está rolando na Bazinga?"></textarea></label><label>Link de clip (opcional)<input type="url" name="clip_url" placeholder="https://..."></label><button class="games-cta" type="submit">PUBLICAR NO MURAL ↗</button></form>
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">ATIVIDADE DOS AMIGOS</span><h2>Mural da comunidade</h2></div></div>
+        {% if posts %}<div class="community-feed">{% for post in posts %}<article class="community-post"><div class="community-post-head"><strong>{{ post.user.name|e }}</strong><time>{{ post.created_at.strftime('%d/%m/%Y %H:%M') }}</time></div><p>{{ post.body|e }}</p>{% if post.clip_url %}<a class="text-link" href="{{ post.clip_url|e }}" target="_blank" rel="noopener noreferrer">ABRIR CLIP ↗</a>{% endif %}</article>{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>O mural está esperando a primeira publicação.</h2><p>Compartilhe uma novidade, um aviso ou aquele clip absurdo da última partida.</p></div>{% endif %}
+      </section>
+
+    {% elif module_key == 'dm' %}
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">PESSOAS DA BAZINGA</span><h2>Começar conversa</h2></div></div>
+        {% if users %}<div class="dm-user-grid">{% for person in users %}<a class="dm-user-card" href="{{ url_for('main.direct_message', user_id=person.id) }}">{% if person.avatar_url %}<img src="{{ person.avatar_url|e }}" alt="" loading="lazy">{% else %}<span class="dm-avatar">{{ person.name[:1]|upper }}</span>{% endif %}<strong>{{ person.name|e }}</strong><small>ABRIR CONVERSA ↗</small></a>{% endfor %}</div>{% else %}<p class="hub-muted">Quando outros amigos entrarem no UBC, eles aparecerão aqui.</p>{% endif %}
+      </section>
+      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CAIXA DE ENTRADA</span><h2>Conversas recentes</h2></div></div>
+        {% if conversations %}<div class="community-feed">{% for person, message in conversations %}<a class="conversation-row" href="{{ url_for('main.direct_message', user_id=person.id) }}"><strong>{{ person.name|e }}</strong><span>{{ message.body|truncate(90)|e }}</span><small>{{ message.created_at.strftime('%d/%m %H:%M') }}</small></a>{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>Nenhuma conversa por enquanto.</h2><p>Escolha alguém da turma acima para começar uma DM privada.</p></div>{% endif %}
+      </section>
+    {% endif %}
+    <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>ESPAÇO PRIVADO DOS AMIGOS.</span></footer>
   </main>
 </div>
 {% endblock %}

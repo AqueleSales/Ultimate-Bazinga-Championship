@@ -443,3 +443,42 @@ Definir `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `DISCORD_CLIENT_ID` e `DISCO
 - Os testes cobrem renderização da homepage, presença do módulo da intro, ausência de credenciais OAuth, rotas de login desconfiguradas e logout com CSRF.
 - A CI do GitHub é a validação final desta branch; não afirmar teste manual de navegador sem executá-lo.
 - Não foi necessária alteração de schema: os modelos `User` e `OAuthAccount` já existiam.
+
+
+## 16. Estado atualizado do hub privado (2026-11-15)
+
+Esta seção é a referência mais recente e substitui as seções históricas acima quando houver divergência.
+
+### Produto e acesso
+- O UBC é destinado ao grupo de amigos do responsável, não a uma comunidade pública.
+- As rotas internas `/competitions`, `/matches`, `/ranking`, `/achievements`, `/community`, `/dm` e conversas privadas exigem usuário autenticado.
+- Temporariamente, **todo usuário autenticado** pode organizar eventos, gerar chaves, iniciar/encerrar partidas, entregar conquistas/clips e publicar no mural. Não há ainda lista definitiva dos quatro administradores nem RBAC persistido.
+- O código de convite opcional é configurado por `UBC_INVITE_CODE`. Quando definido, a tela de entrada exige validação antes do OAuth e o backend também bloqueia autenticação sem essa validação. Sem a variável, o cadastro OAuth continua aberto.
+
+### Funcionalidades implementadas
+- `TournamentDetails`: dados adicionais do evento (nome do jogo, imagem, vagas, local, regras e transmissão).
+- Catálogo de campeonatos em duas colunas desktop / uma coluna mobile; inscrições respeitam limite de vagas.
+- Gerador de chave de eliminação simples com BYEs, partidas agrupadas por rodada e avanço automático dos vencedores.
+- Partidas ao vivo com polling HTTP a cada 15 segundos; não chamar de WebSocket/realtime instantâneo.
+- Ranking individual calculado por vitórias oficiais, top 3 de MVPs e listagem de equipes.
+- `DirectMessage`: mensagens privadas entre duas contas autenticadas.
+- `CommunityPost`: mural privado com texto e link opcional de clip.
+- `Achievement`: conquista individual com imagem e URL de GIF/animação, entregue por um usuário organizador.
+- `Clip`: link salvo pelo próprio jogador ou entregue por organizador a outro jogador.
+- Todos os formulários de mutação usam CSRF. URLs externas para mídia aceitam apenas HTTP/HTTPS.
+- `UBC_INVITE_CODE` opcional pode limitar novos logins às pessoas que receberam o código; configurar no ambiente e não commitar o valor real.
+
+### Novos modelos e arquivos
+- `bazinga/models/social.py`: TournamentDetails, DirectMessage, Achievement, Clip e CommunityPost.
+- `bazinga/templates/module.html`: telas conectadas de partidas, ranking, conquistas, comunidade e mensagens.
+- `bazinga/templates/dm_conversation.html`: conversa individual.
+- `bazinga/static/js/matches-live.js`: atualização periódica da área ao vivo.
+- `tests/test_private_hub.py`: testes de privacidade, DM, mural, clips, conquistas e avanço de chave.
+
+### Limitações e decisões pendentes
+- Chaves: apenas eliminação simples; grupos, dupla eliminação, séries melhor-de-N e critérios de desempate ainda não foram implementados.
+- Ranking: vitórias individuais; pontuação por jogo/temporada, MVP por partida, estatísticas e ranking de equipes ainda dependem de regras do grupo.
+- Clips e imagens são URLs externas; não há upload de arquivos.
+- O polling não é instantâneo e pode atrasar até 15 segundos.
+- O esquema das novas tabelas é criado com `db.create_all()`; esse método não altera tabelas existentes. Não adicionar colunas a modelos existentes sem migração explícita.
+- Não afirmar que a UI foi testada visualmente em navegador sem executar teste real desktop/mobile.

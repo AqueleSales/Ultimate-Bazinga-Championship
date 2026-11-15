@@ -79,7 +79,7 @@ def test_intro_script_limits_cinematic_login_flow_to_homepage(client):
     assert b"if (!isHomePage)" in response.data
 
 
-def test_guest_can_browse_competition_details_and_is_guided_to_login(app, client):
+def test_guest_cannot_open_private_competition_details(app, client):
     from bazinga.extensions import db
     from bazinga.models import User, Tournament
 
@@ -88,7 +88,7 @@ def test_guest_can_browse_competition_details_and_is_guided_to_login(app, client
         db.session.add(user)
         db.session.flush()
         tournament = Tournament(
-            title="Copa Pública", slug="copa-publica", status="registration_open",
+            title="Copa Privada", slug="copa-privada", status="registration_open",
             competition_mode="individual", visibility="public", organizer_id=user.id,
         )
         db.session.add(tournament)
@@ -96,10 +96,8 @@ def test_guest_can_browse_competition_details_and_is_guided_to_login(app, client
         tournament_id = tournament.id
 
     response = client.get(f"/competitions/{tournament_id}")
-    assert response.status_code == 200
-    assert "Copa Pública".encode() in response.data
-    assert b"ENTRAR E GARANTIR VAGA" in response.data
-    assert b'name="csrf_token"' not in response.data
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/?screen=auth")
 
 
 def test_guest_registration_action_redirects_to_login(app, client):
@@ -183,10 +181,11 @@ def test_oauth_login_routes_return_provider_specific_setup_message_when_unconfig
     assert b"Discord" in discord.data
 
 
-def test_public_module_pages_are_accessible_without_authentication(client):
-    for path in ("/competitions", "/matches", "/ranking", "/achievements", "/community"):
+def test_private_module_pages_redirect_guests_to_login(client):
+    for path in ("/competitions", "/matches", "/ranking", "/achievements", "/community", "/dm"):
         response = client.get(path)
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert response.headers["Location"].endswith("/?screen=auth")
 
 
 def test_authenticated_user_can_open_each_module_page(app, client):
@@ -223,7 +222,17 @@ def test_logout_returns_to_login_screen_without_replaying_intro(client):
     assert response.headers["Location"].endswith("/?screen=auth")
 
 
-def test_competitions_catalog_is_public(client):
+def test_competitions_catalog_requires_login(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User
+
+    with app.app_context():
+        user = User(name="Competidor", email="catalog-user@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
     response = client.get("/competitions")
     assert response.status_code == 200
     assert b"CAMPEONATOS" in response.data
@@ -273,7 +282,16 @@ def test_user_can_create_tournament_and_register(app, client):
         ))
         assert registration is not None
 
-def test_shared_navigation_script_is_loaded_on_every_page(client):
+def test_shared_navigation_script_is_loaded_on_every_page(app, client):
+    from bazinga.extensions import db
+    from bazinga.models import User
+    with app.app_context():
+        user = User(name="Navegador", email="navigation-user@example.test")
+        db.session.add(user)
+        db.session.commit()
+        user_id = user.id
+    with client.session_transaction() as session:
+        session["user_id"] = user_id
     for path in ("/", "/competitions", "/matches", "/ranking"):
         response = client.get(path)
         assert response.status_code == 200
@@ -319,7 +337,10 @@ def test_competition_search_filters_public_tournaments(app, client):
             ),
         ])
         db.session.commit()
+        organizer_id = organizer.id
 
+    with client.session_transaction() as session:
+        session["user_id"] = organizer_id
     response = client.get("/competitions?q=summer")
     assert response.status_code == 200
     assert b"Summer Championship" in response.data
@@ -332,3 +353,22 @@ def test_homepage_search_is_a_real_get_form(client):
     assert response.status_code == 200
     assert b'action="/competitions"' in response.data
     assert b'name="q"' in response.data
+
+
+def test_live_match_refresh_script_is_loaded_and_polls():
+    from bazinga import create_app
+
+    class StaticTestConfig:
+        TESTING = True
+        SECRET_KEY = "test-secret-key"
+        SQLALCHEMY_DATABASE_URI = "sqlite://"
+        SQLALCHEMY_TRACK_MODIFICATIONS = False
+        SQLALCHEMY_ENGINE_OPTIONS = {}
+
+    app = create_app(StaticTestConfig)
+    with app.test_client() as client:
+        response = client.get("/static/js/matches-live.js")
+        assert response.status_code == 200
+        assert b"window.setInterval(refreshLiveMatches, 15000)" in response.data
+        page = client.get("/")
+        assert b"js/matches-live.js" in page.data
