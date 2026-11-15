@@ -59,11 +59,13 @@ class Clip(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    awarded_by_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     title = db.Column(db.String(140), nullable=False)
     url = db.Column(db.String(1000), nullable=False)
     description = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
-    user = db.relationship("User")
+    user = db.relationship("User", foreign_keys=[user_id])
+    awarded_by = db.relationship("User", foreign_keys=[awarded_by_id])
 
 
 class CommunityPost(db.Model):
