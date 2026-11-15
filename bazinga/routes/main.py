@@ -299,19 +299,21 @@ def create_bracket(tournament_id):
 
     rounds = {}
     first_round = []
+    global_match_number = 1
     total_rounds = size.bit_length() - 1
     for round_number in range(1, total_rounds + 1):
         match_count = size // (2 ** round_number)
         rounds[round_number] = []
-        for match_number in range(1, match_count + 1):
+        for local_match_number in range(1, match_count + 1):
             match = Match(stage_id=stage.id, round_number=round_number,
-                          match_number=match_number, status="scheduled")
+                          match_number=global_match_number, status="scheduled")
+            global_match_number += 1
             db.session.add(match)
             db.session.flush()
             rounds[round_number].append(match)
             if round_number == 1:
                 first_round.append(match)
-                first_index = (match_number - 1) * 2
+                first_index = (local_match_number - 1) * 2
                 for slot_number in (1, 2):
                     registration = registrations[first_index + slot_number - 1] if first_index + slot_number - 1 < len(registrations) else None
                     db.session.add(MatchSlot(
@@ -322,7 +324,7 @@ def create_bracket(tournament_id):
                     ))
             else:
                 previous = rounds[round_number - 1]
-                child_index = (match_number - 1) * 2
+                child_index = (local_match_number - 1) * 2
                 for slot_number, child in enumerate(previous[child_index:child_index + 2], start=1):
                     db.session.add(MatchSlot(match_id=match.id, slot_number=slot_number,
                                               source_match_id=child.id, source_outcome="winner"))
