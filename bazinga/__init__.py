@@ -68,6 +68,7 @@ def create_app(config_object=Config):
             "current_user": user if user and user.is_active else None,
             "google_oauth_enabled": bool(app.config.get("GOOGLE_CLIENT_ID") and app.config.get("GOOGLE_CLIENT_SECRET")),
             "discord_oauth_enabled": bool(app.config.get("DISCORD_CLIENT_ID") and app.config.get("DISCORD_CLIENT_SECRET")),
+            "invite_code_required": bool(app.config.get("UBC_INVITE_CODE")),
             "csrf_token": session.setdefault("_csrf_token", secrets.token_urlsafe(32)),
         }
 
