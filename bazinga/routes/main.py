@@ -239,6 +239,43 @@ def _positive_int(value):
         return None
 
 
+def _auto_resolve_bye(match, recorder_id):
+    slots = match.slots
+    unresolved = [
+        slot for slot in slots
+        if slot.source_match_id and slot.source_match.status not in ("completed", "bye")
+    ]
+    if unresolved or match.result:
+        return
+    filled = [slot for slot in slots if slot.participant_id or slot.team_id]
+    if len(filled) == 2:
+        if match.status == "bye":
+            match.status = "scheduled"
+        return
+    if len(filled) == 1:
+        winner = filled[0]
+        match.status = "completed"
+        match.completed_at = datetime.now(timezone.utc)
+        db.session.add(MatchResult(match_id=match.id, winner_slot_id=winner.id, recorded_by_id=recorder_id))
+        _propagate_winner(match, winner, recorder_id)
+    elif len(filled) == 0:
+        match.status = "bye"
+        match.completed_at = datetime.now(timezone.utc)
+        _propagate_winner(match, None, recorder_id)
+
+
+def _propagate_winner(match, winner, recorder_id):
+    parent_slots = db.session.scalars(db.select(MatchSlot).where(MatchSlot.source_match_id == match.id)).all()
+    for parent_slot in parent_slots:
+        if winner:
+            parent_slot.participant_id = winner.participant_id
+            parent_slot.team_id = winner.team_id
+            parent_slot.seed = winner.seed
+        parent_match = parent_slot.match
+        if parent_match.status not in ("completed", "bye"):
+            _auto_resolve_bye(parent_match, recorder_id)
+
+
 @main_bp.post("/competitions/<int:tournament_id>/bracket")
 @organizer_required
 def create_bracket(tournament_id):
@@ -254,19 +291,50 @@ def create_bracket(tournament_id):
     if len(registrations) < 2:
         flash("São necessários pelo menos dois competidores inscritos para gerar a chave.", "error")
         return redirect(url_for("main.competition_detail", tournament_id=tournament.id))
-    stage = TournamentStage(tournament_id=tournament.id, name="Chave principal", stage_type="single_elimination",
-                            order_index=1, status="in_progress")
+
+    size = 1
+    while size < len(registrations):
+        size *= 2
+    stage = TournamentStage(tournament_id=tournament.id, name="Chave principal",
+                            stage_type="single_elimination", order_index=1, status="in_progress")
     db.session.add(stage)
     db.session.flush()
-    for index in range(0, len(registrations) - 1, 2):
-        match = Match(stage_id=stage.id, round_number=1, match_number=index // 2 + 1, status="scheduled")
-        db.session.add(match)
-        db.session.flush()
-        for slot_number, registration in enumerate(registrations[index:index + 2], start=1):
-            db.session.add(MatchSlot(match_id=match.id, slot_number=slot_number,
-                participant_id=registration.participant_id, team_id=registration.team_id, seed=registration.seed))
+
+    rounds = {}
+    first_round = []
+    total_rounds = size.bit_length() - 1
+    for round_number in range(1, total_rounds + 1):
+        match_count = size // (2 ** round_number)
+        rounds[round_number] = []
+        for match_number in range(1, match_count + 1):
+            match = Match(stage_id=stage.id, round_number=round_number,
+                          match_number=match_number, status="scheduled")
+            db.session.add(match)
+            db.session.flush()
+            rounds[round_number].append(match)
+            if round_number == 1:
+                first_round.append(match)
+                first_index = (match_number - 1) * 2
+                for slot_number in (1, 2):
+                    registration = registrations[first_index + slot_number - 1] if first_index + slot_number - 1 < len(registrations) else None
+                    db.session.add(MatchSlot(
+                        match_id=match.id, slot_number=slot_number,
+                        participant_id=(registration.participant_id if registration and not registration.team_id else None),
+                        team_id=(registration.team_id if registration else None),
+                        seed=(registration.seed if registration else None),
+                    ))
+            else:
+                previous = rounds[round_number - 1]
+                child_index = (match_number - 1) * 2
+                for slot_number, child in enumerate(previous[child_index:child_index + 2], start=1):
+                    db.session.add(MatchSlot(match_id=match.id, slot_number=slot_number,
+                                              source_match_id=child.id, source_outcome="winner"))
+
+    db.session.flush()
+    for match in first_round:
+        _auto_resolve_bye(match, get_current_user().id)
     db.session.commit()
-    flash("Chave inicial criada com os confrontos dos competidores inscritos.", "success")
+    flash("Chave eliminatória criada! Os vencedores avançam automaticamente para a próxima rodada.", "success")
     return redirect(url_for("main.competition_detail", tournament_id=tournament.id))
 
 
@@ -300,8 +368,12 @@ def record_match_result(match_id):
         db.session.add(MatchResult(match_id=match.id, winner_slot_id=winner.id, recorded_by_id=get_current_user().id))
     match.status = "completed"
     match.completed_at = datetime.now(timezone.utc)
+    match.status = "completed"
+    match.completed_at = datetime.now(timezone.utc)
+    db.session.flush()
+    _propagate_winner(match, winner, get_current_user().id)
     db.session.commit()
-    flash("Resultado oficial registrado.", "success")
+    flash("Resultado oficial registrado e chave atualizada.", "success")
     return redirect(url_for("main.module_page", module="matches"))
 
 
