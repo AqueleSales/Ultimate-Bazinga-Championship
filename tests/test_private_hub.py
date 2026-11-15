@@ -133,3 +133,60 @@ def test_external_clip_urls_reject_unsafe_schemes(app, client):
     assert response.status_code == 302
     with app.app_context():
         assert db.session.scalar(db.select(Clip)) is None
+
+
+def test_elimination_bracket_auto_advances_bye_and_winner(app, client):
+    organizer_id, token = signed_in_client(app, client, "Chaveiro")
+    with app.app_context():
+        players = [Participant(display_name=f"Player {index}") for index in range(1, 4)]
+        db.session.add_all(players)
+        db.session.flush()
+        tournament = Tournament(
+            title="Copa de três", slug="copa-de-tres", status="registration_open",
+            competition_mode="individual", visibility="public", organizer_id=organizer_id,
+        )
+        db.session.add(tournament)
+        db.session.flush()
+        for player in players:
+            db.session.add(TournamentRegistration(tournament_id=tournament.id, participant_id=player.id))
+        db.session.commit()
+        tournament_id = tournament.id
+
+    client.post(f"/competitions/{tournament_id}/bracket", data={"csrf_token": token})
+    with app.app_context():
+        matches = db.session.scalars(db.select(Match).order_by(Match.round_number, Match.match_number)).all()
+        assert len(matches) == 3
+        assert matches[1].status == "completed"  # bye
+        final_match = matches[2]
+        assert final_match.slots[0].participant_id is not None
+
+    with app.app_context():
+        first_match = db.session.scalar(db.select(Match).where(Match.round_number == 1, Match.match_number == 1))
+        winner_slot_id = first_match.slots[0].id
+        first_match_id = first_match.id
+    response = client.post(f"/matches/{first_match_id}/result", data={
+        "csrf_token": token, "winner_slot_id": winner_slot_id,
+    })
+    assert response.status_code == 302
+    with app.app_context():
+        final_match = db.session.scalar(db.select(Match).where(Match.round_number == 2))
+        assert final_match.status == "scheduled"
+        assert all(slot.participant_id for slot in final_match.slots)
+
+
+def test_organizer_can_award_clip_to_competitor(app, client):
+    organizer_id, token = signed_in_client(app, client, "Organizador")
+    with app.app_context():
+        recipient = User(name="Jogador", email="clip-award@example.test")
+        db.session.add(recipient)
+        db.session.commit()
+        recipient_id = recipient.id
+    response = client.post("/clips/award", data={
+        "csrf_token": token, "user_id": recipient_id, "title": "Clip da vitória",
+        "url": "https://example.com/clip-awarded",
+    })
+    assert response.status_code == 302
+    with app.app_context():
+        clip = db.session.scalar(db.select(Clip))
+        assert clip.user_id == recipient_id
+        assert clip.awarded_by_id == organizer_id
