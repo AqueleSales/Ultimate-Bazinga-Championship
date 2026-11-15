@@ -453,7 +453,7 @@ Esta seção é a referência mais recente e substitui as seções históricas a
 - O UBC é destinado ao grupo de amigos do responsável, não a uma comunidade pública.
 - As rotas internas `/competitions`, `/matches`, `/ranking`, `/achievements`, `/community`, `/dm` e conversas privadas exigem usuário autenticado.
 - Temporariamente, **todo usuário autenticado** pode organizar eventos, gerar chaves, iniciar/encerrar partidas, entregar conquistas/clips e publicar no mural. Não há ainda lista definitiva dos quatro administradores nem RBAC persistido.
-- Importante: exigir login não é o mesmo que convite exclusivo. O fluxo OAuth ainda permite criar contas novas; antes de abrir o endereço publicamente, adicionar allowlist/código de convite e configurar os quatro administradores.
+- O código de convite opcional é configurado por `UBC_INVITE_CODE`. Quando definido, a tela de entrada exige validação antes do OAuth e o backend também bloqueia autenticação sem essa validação. Sem a variável, o cadastro OAuth continua aberto.
 
 ### Funcionalidades implementadas
 - `TournamentDetails`: dados adicionais do evento (nome do jogo, imagem, vagas, local, regras e transmissão).
@@ -466,6 +466,7 @@ Esta seção é a referência mais recente e substitui as seções históricas a
 - `Achievement`: conquista individual com imagem e URL de GIF/animação, entregue por um usuário organizador.
 - `Clip`: link salvo pelo próprio jogador ou entregue por organizador a outro jogador.
 - Todos os formulários de mutação usam CSRF. URLs externas para mídia aceitam apenas HTTP/HTTPS.
+- `UBC_INVITE_CODE` opcional pode limitar novos logins às pessoas que receberam o código; configurar no ambiente e não commitar o valor real.
 
 ### Novos modelos e arquivos
 - `bazinga/models/social.py`: TournamentDetails, DirectMessage, Achievement, Clip e CommunityPost.
