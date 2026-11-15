@@ -93,7 +93,6 @@ def hub():
 def competitions():
     search_query = (request.args.get("q") or "").strip()[:100]
     statement = db.select(Tournament).where(
-        Tournament.visibility == "public",
         Tournament.status.in_(("registration_open", "open", "published", "live", "completed")),
     )
     if search_query:
@@ -116,8 +115,6 @@ def competitions():
 def competition_detail(tournament_id):
     tournament = db.get_or_404(Tournament, tournament_id)
     user = get_current_user()
-    if tournament.visibility != "public" and (not user or tournament.organizer_id != user.id):
-        abort(404)
     registrations = db.session.scalars(db.select(TournamentRegistration).where(
         TournamentRegistration.tournament_id == tournament.id
     ).order_by(TournamentRegistration.registered_at.asc())).all()
