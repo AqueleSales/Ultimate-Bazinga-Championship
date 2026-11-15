@@ -518,6 +518,24 @@ def save_clip():
     return redirect(url_for("main.module_page", module="achievements"))
 
 
+@main_bp.post("/clips/award")
+@organizer_required
+def award_clip():
+    require_csrf()
+    user_id = _positive_int(request.form.get("user_id"))
+    recipient = db.session.get(User, user_id) if user_id else None
+    title = (request.form.get("title") or "").strip()
+    clip_url = safe_url(request.form.get("url"))
+    if not recipient or not recipient.is_active or not title or len(title) > 140 or not clip_url:
+        flash("Escolha um competidor e informe título e link válidos para o clip.", "error")
+    else:
+        db.session.add(Clip(user_id=recipient.id, awarded_by_id=get_current_user().id,
+            title=title, url=clip_url, description=(request.form.get("description") or "").strip()[:500] or None))
+        db.session.commit()
+        flash("Clip entregue ao competidor!", "success")
+    return redirect(url_for("main.module_page", module="achievements"))
+
+
 @main_bp.get("/health")
 def health_check():
     return {"status": "ok", "service": "ultimate-bazinga-championship"}
