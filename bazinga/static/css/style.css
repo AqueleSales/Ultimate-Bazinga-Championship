@@ -637,3 +637,12 @@ body.intro-lock{overflow:hidden}
 .event-facts small{display:block;margin-bottom:5px;color:#c68d5e;font:800 8px Inter,sans-serif;letter-spacing:.15em}
 .event-rules{white-space:pre-wrap;color:#d7c8bd;font-size:13px;line-height:1.8}
 @media(max-width:720px){.hub-card-grid{grid-template-columns:1fr}.mvp-grid{grid-template-columns:1fr}.conversation-row{grid-template-columns:1fr;gap:6px}.tournament-detail-art{inset:0;opacity:.25}.event-facts span{flex:1}.dm-message{width:94%}}
+
+
+.competition-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bracket-round{margin:24px 0 30px;padding:18px;border-left:2px solid #d78e55;background:linear-gradient(90deg,#b75b2610,transparent)}
+.bracket-round>h3{margin:0 0 14px;color:#e6ad7b;font:800 16px var(--display-font);letter-spacing:.12em}
+.account-identity{display:grid;gap:2px}
+.account-identity strong{font-size:11px}
+.account-identity small{color:#d9a05b;font-size:7px;font-weight:900;letter-spacing:.14em}
+@media(max-width:650px){.competition-cards{grid-template-columns:1fr}}
