@@ -624,3 +624,9 @@ def admin_update_tournament(tournament_id):
 def admin_new_achievement():
     users = db.session.scalars(db.select(User).where(User.is_active.is_(True)).order_by(User.name.asc())).all()
     return render_template("admin_achievement_form.html", users=users)
+
+@main_bp.get("/admin/matches")
+@organizer_required
+def admin_matches():
+    matches = db.session.scalars(db.select(Match).order_by(Match.started_at.desc().nullslast(), Match.id.desc()).limit(200)).all()
+    return render_template("admin_matches.html", matches=matches)
