@@ -567,3 +567,60 @@ def award_clip():
 @main_bp.get("/health")
 def health_check():
     return {"status": "ok", "service": "ultimate-bazinga-championship"}
+
+
+@main_bp.get("/admin")
+@organizer_required
+def admin_control_room():
+    tournaments = db.session.scalars(db.select(Tournament).order_by(Tournament.created_at.desc())).all()
+    users = db.session.scalars(db.select(User).where(User.is_active.is_(True)).order_by(User.name.asc())).all()
+    registrations = db.session.scalars(db.select(TournamentRegistration).order_by(TournamentRegistration.registered_at.desc()).limit(100)).all()
+    return render_template("admin.html", tournaments=tournaments, users=users, registrations=registrations)
+
+
+@main_bp.get("/admin/tournaments/new")
+@organizer_required
+def admin_new_tournament():
+    return render_template("admin_tournament_form.html", tournament=None)
+
+
+@main_bp.get("/admin/tournaments/<int:tournament_id>/edit")
+@organizer_required
+def admin_edit_tournament(tournament_id):
+    return render_template("admin_tournament_form.html", tournament=db.get_or_404(Tournament, tournament_id))
+
+
+@main_bp.post("/admin/tournaments/<int:tournament_id>/edit")
+@organizer_required
+def admin_update_tournament(tournament_id):
+    require_csrf()
+    tournament = db.get_or_404(Tournament, tournament_id)
+    title = (request.form.get("title") or "").strip()
+    mode = request.form.get("competition_mode", "individual")
+    if not title or len(title) > 180 or mode not in ("individual", "team"):
+        flash("Confira o título e a modalidade do campeonato.", "error")
+        return redirect(url_for("main.admin_edit_tournament", tournament_id=tournament.id))
+    tournament.title = title
+    tournament.description = (request.form.get("description") or "").strip()[:5000]
+    tournament.competition_mode = mode
+    tournament.status = request.form.get("status", tournament.status)
+    tournament.starts_at = _parse_datetime(request.form.get("starts_at"))
+    details = tournament.details or TournamentDetails(tournament_id=tournament.id)
+    db.session.add(details)
+    details.game_title = (request.form.get("game_title") or title).strip()[:180]
+    image_ref = (request.form.get("image_url") or "").strip()
+    details.image_url = image_ref[:1000] if is_storage_reference(image_ref) else safe_url(image_ref)
+    details.max_participants = _positive_int(request.form.get("max_participants"))
+    details.venue = (request.form.get("venue") or "").strip()[:180] or None
+    details.rules = (request.form.get("rules") or "").strip()[:5000] or None
+    details.stream_url = safe_url(request.form.get("stream_url"))
+    db.session.commit()
+    flash("Configurações do campeonato atualizadas.", "success")
+    return redirect(url_for("main.admin_control_room"))
+
+
+@main_bp.get("/admin/achievements/new")
+@organizer_required
+def admin_new_achievement():
+    users = db.session.scalars(db.select(User).where(User.is_active.is_(True)).order_by(User.name.asc())).all()
+    return render_template("admin_achievement_form.html", users=users)
