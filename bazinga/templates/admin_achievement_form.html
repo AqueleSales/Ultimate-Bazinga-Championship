@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Nova conquista | UBC{% endblock %}{% block content %}
+<div class="admin-shell"><div class="admin-masthead"><div><span class="admin-kicker">CONTROL ROOM / RECONHECIMENTO</span><h1>ENTREGAR CONQUISTA</h1><p class="hub-muted">Uma lembrança especial para alguém da arena.</p></div><a class="text-link" href="{{ url_for('main.admin_control_room') }}">← VOLTAR AO PAINEL</a></div>
+<form class="admin-form" method="post" action="{{ url_for('main.award_achievement') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+<label>Competidor<select name="user_id" required><option value="">Selecione alguém</option>{% for u in users %}<option value="{{ u.id }}">{{ u.name|e }}</option>{% endfor %}</select></label><label>Título<input name="title" maxlength="120" required placeholder="Lenda do comeback"></label>
+<label class="wide">Descrição<textarea name="description" maxlength="500"></textarea></label>
+<label class="wide">Imagem da conquista<div class="media-upload-field" data-media-upload><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-kind="achievements"><input type="hidden" name="image_url" data-reference><div class="media-upload-preview" data-preview></div><p class="media-upload-status" data-status role="status"></p></div></label>
+<label class="wide">Animação / GIF<div class="media-upload-field" data-media-upload><input type="file" accept="image/gif,image/png,image/webp,image/jpeg" data-kind="achievements"><input type="hidden" name="animation_url" data-reference><div class="media-upload-preview" data-preview></div><p class="media-upload-status" data-status role="status"></p></div></label>
+<button class="games-cta" type="submit">ENTREGAR CONQUISTA ↗</button></form></div>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static',filename='js/media-upload.js') }}"></script>{% endblock %}
