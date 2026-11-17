@@ -699,3 +699,118 @@ body.intro-lock{overflow:hidden}
 .admin-redirect-strip span{color:#e0a16c;font-size:9px;font-weight:900;letter-spacing:.15em}.admin-redirect-strip strong{font:700 19px var(--display-font);color:#f3e0cf}
 @media(max-width:800px){.admin-grid{grid-template-columns:1fr 1fr}.admin-masthead{align-items:start;flex-direction:column}}
 @media(max-width:560px){.admin-shell{padding:20px 15px 45px}.admin-grid,.admin-form{grid-template-columns:1fr}.admin-form label.wide{grid-column:auto}.admin-table{display:block;overflow-x:auto}}
+
+
+/* ==========================================================
+   BAZINGA Y2K / WEBCORE / ARCADE — solid retro portal skin
+   No glass panels: hard surfaces, pixel borders, chrome accents.
+   ========================================================== */
+:root {
+  --color-bg:#090b1b;
+  --color-surface:#11152b;
+  --color-surface-raised:#1c2342;
+  --color-border:#5969a8;
+  --color-text:#f5f3ff;
+  --color-muted:#a6afd1;
+  --color-primary:#ff4fc8;
+  --color-primary-strong:#9d55ff;
+  --color-fire:#49e7ff;
+  --display-font:'Orbitron','Barlow Condensed',Impact,sans-serif;
+  font-family:'Share Tech Mono','Inter',ui-monospace,monospace;
+}
+html { background:#090b1b; }
+body {
+  background-color:#090b1b;
+  background-image:
+    linear-gradient(rgba(73,231,255,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(73,231,255,.055) 1px,transparent 1px),
+    radial-gradient(ellipse at 50% -15%,#3c1d68 0,transparent 58%);
+  background-size:24px 24px,24px 24px,100% 100%;
+}
+body::before { opacity:.08; }
+.site-header {
+  border-bottom:2px solid #5365a5;
+  box-shadow:0 3px 0 #171b38;
+}
+.brand-mark {
+  border:2px solid #f8d5ff;
+  background:linear-gradient(145deg,#ff4fc8,#7b43e8 55%,#263e91);
+  color:#fff;
+  box-shadow:3px 3px 0 #11152b,5px 5px 0 #49e7ff;
+  text-shadow:1px 2px #52206e;
+}
+.brand strong { color:#49e7ff; }
+.header-nav a,.site-header a { text-shadow:1px 1px #000; }
+.header-nav a:hover,.header-nav a:focus-visible { color:#49e7ff; }
+.games-layout {
+  background:transparent;
+  border:2px solid #6477bd;
+  box-shadow:0 0 0 3px #11152b,0 0 0 4px #ff4fc8,8px 8px 0 #050612;
+}
+.games-sidebar,.module-sidebar {
+  background:#11152b;
+  border-right:2px solid #6477bd;
+  box-shadow:4px 0 0 #080a18;
+}
+.games-hero,.module-hero {
+  background:#151a36;
+  background-image:
+    linear-gradient(135deg,rgba(255,79,200,.12),transparent 48%),
+    repeating-linear-gradient(135deg,rgba(73,231,255,.035) 0 2px,transparent 2px 7px);
+  border:2px solid #7a8bd1;
+  box-shadow:inset 0 0 0 3px #090b1b,5px 5px 0 #050612;
+}
+.games-hero h1,.module-hero h1 {
+  text-shadow:3px 3px 0 #8a35a5,6px 6px 0 #10142b;
+}
+.games-cta,.admin-tile a,.admin-redirect-strip a {
+  border:2px solid #fff0ff;
+  border-radius:0;
+  background:linear-gradient(180deg,#ff73d5 0%,#b83be8 48%,#6936bd 50%,#43247e 100%);
+  color:#fff;
+  box-shadow:inset 0 2px 0 #ffffffa8,3px 3px 0 #11152b,5px 5px 0 #49e7ff;
+  text-shadow:1px 2px #57206e;
+  letter-spacing:.09em;
+}
+.games-cta:hover { transform:translate(1px,2px);box-shadow:inset 0 2px 0 #ffffffa8,2px 2px 0 #11152b,3px 3px 0 #49e7ff; }
+.hub-card,.competition-card,.admin-tile,.admin-form,.dm-compose {
+  border:2px solid #6678bd;
+  border-radius:0;
+  background:#171d3a;
+  box-shadow:inset 0 0 0 2px #0a0d20,4px 4px 0 #050612;
+}
+.admin-masthead { border-bottom:3px double #49e7ff; }
+.admin-masthead h1 {
+  color:#fff;
+  font-family:'Orbitron','Barlow Condensed',sans-serif;
+  text-shadow:3px 3px 0 #ff4fc8,6px 6px 0 #263e91;
+}
+.admin-kicker,.admin-eyebrow,.admin-table th { color:#49e7ff; }
+.admin-table { background:#11152b;border:2px solid #6678bd; }
+.admin-table th { background:#20264a; }
+.admin-table td { border-color:#39456f; }
+.admin-form input,.admin-form textarea,.admin-form select,.games-search {
+  border:2px solid #5265a8;
+  border-radius:0;
+  background:#080b1b;
+  color:#fff;
+  box-shadow:inset 2px 2px 0 #03040d;
+}
+.games-search:focus-within { outline:2px solid #ff4fc8;background:#10152b; }
+.competition-event-image { background:#080b1b; }
+.tournament-detail-art { background:#080b1b; }
+.admin-redirect-strip { border:2px solid #6678bd;background:#151a36; }
+.admin-redirect-strip span { color:#49e7ff; }
+.event-facts span { border:2px solid #5265a8;background:#11152b; }
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
+  outline:2px dashed #49e7ff;
+  outline-offset:3px;
+}
+@media (prefers-reduced-motion:no-preference) {
+  .games-cta,.admin-tile,.competition-card { transition:transform .12s steps(2,end),filter .12s linear; }
+  .admin-tile:hover,.competition-card:hover { transform:translate(-2px,-2px);filter:brightness(1.14); }
+}
+@media(max-width:720px) {
+  body { background-size:18px 18px,18px 18px,100% 100%; }
+  .games-layout { box-shadow:0 0 0 2px #ff4fc8,4px 4px 0 #050612; }
+}
