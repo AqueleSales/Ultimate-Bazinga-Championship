@@ -59,7 +59,7 @@ document.querySelectorAll("[data-media-upload]").forEach(area => {
       </div>
       <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CHAVES E HISTÓRICO</span><h2>Outras partidas</h2></div></div>
         {% if other_matches %}<div class="hub-card-grid">{% for match in other_matches %}<article class="hub-card match-card"><span class="feature-state">{{ match.status|upper }}</span><h3>{{ match.stage.tournament.title }}</h3><p>{{ match.stage.name }} · Rodada {{ match.round_number or 1 }} · Jogo {{ match.match_number }}</p><div class="match-versus">{% for slot in match.slots %}<strong>{{ slot.participant.display_name if slot.participant else (slot.team.name if slot.team else 'A definir') }}</strong>{% if not loop.last %}<span>VS</span>{% endif %}{% endfor %}</div>
-          {% if match.result %}<p class="winner-line">Vencedor: {{ match.result.winner_slot.participant.display_name if match.result.winner_slot.participant else match.result.winner_slot.team.name }}</p>{% elif current_user and match.status == 'scheduled' %}<form method="post" action="{{ url_for('main.set_match_live', match_id=match.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="games-cta" type="submit">INICIAR AO VIVO</button></form>{% endif %}
+          {% if match.result %}<p class="winner-line">Vencedor: {{ match.result.winner_slot.participant.display_name if match.result.winner_slot.participant else match.result.winner_slot.team.name }}</p>{% endif %}
           <a class="text-link" href="{{ url_for('main.competition_detail', tournament_id=match.stage.tournament_id) }}">ABRIR CAMPEONATO ↗</a></article>{% endfor %}</div>
         {% else %}<div class="module-empty"><h2>Nenhuma chave criada ainda.</h2><p>Quando um organizador gerar as chaves de um campeonato, os confrontos aparecerão aqui.</p><a class="games-cta" href="{{ url_for('main.competitions') }}">VER CAMPEONATOS ↗</a></div>{% endif %}
       </section>
@@ -76,37 +76,10 @@ document.querySelectorAll("[data-media-upload]").forEach(area => {
       </section>
 
     {% elif module_key == 'achievements' %}
-      <section class="competition-create"><div><span class="feature-state">ORGANIZADORES / TODOS PODEM GERENCIAR</span><h2>Entregar conquista personalizada</h2><p>Crie um reconhecimento com arte própria e, se quiser, uma animação.</p></div>
-        <form class="competition-create-form" method="post" action="{{ url_for('main.award_achievement') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <label>Competidor<select name="user_id" required><option value="">Selecione alguém</option>{% for user in users %}<option value="{{ user.id }}">{{ user.name }}</option>{% endfor %}</select></label>
-          <label>Título<input name="title" maxlength="120" required placeholder="Ex.: Lenda do comeback"></label>
-          <label>Descrição<textarea name="description" rows="2" maxlength="500" placeholder="Por que essa conquista foi entregue?"></textarea></label>
-          <div class="media-upload-field" data-media-upload>
-            <label>Imagem da conquista</label><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-kind="achievements">
-            <input type="hidden" name="image_url" data-reference><p class="media-upload-help">PNG, JPG, WebP ou GIF · até 8 MB.</p>
-            <div class="media-upload-preview" data-preview></div><p class="media-upload-status" data-status role="status"></p>
-          </div>
-          <div class="media-upload-field" data-media-upload>
-            <label>Animação / GIF</label><input type="file" accept="image/gif,image/png,image/webp,image/jpeg" data-kind="achievements">
-            <input type="hidden" name="animation_url" data-reference><p class="media-upload-help">GIF animado recomendado · até 8 MB.</p>
-            <div class="media-upload-preview" data-preview></div><p class="media-upload-status" data-status role="status"></p>
-          </div>
-          <button class="games-cta" type="submit">ENTREGAR CONQUISTA ↗</button>
-        </form>
-      </section>
-      <section class="competition-create"><div><span class="feature-state">ORGANIZADORES</span><h2>Entregar um clip</h2><p>O organizador também pode salvar um momento diretamente no perfil de alguém.</p></div>
-        <form class="competition-create-form" method="post" action="{{ url_for('main.award_clip') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Competidor<select name="user_id" required><option value="">Selecione alguém</option>{% for user in users %}<option value="{{ user.id }}">{{ user.name }}</option>{% endfor %}</select></label><label>Título<input name="title" maxlength="140" required placeholder="Ex.: A jogada da final"></label><label>Link do clip<input type="url" name="url" required placeholder="https://..."></label><label>Descrição<input name="description" maxlength="500" placeholder="Contexto do momento"></label><button class="games-cta" type="submit">ENTREGAR CLIP ↗</button></form>
-      </section>
+      <section class="hub-section"><div class="admin-redirect-strip"><span>CONTROL ROOM</span><strong>Criação e entrega de conquistas ficam na administração.</strong><a href="{{ url_for('main.admin_control_room') }}">ABRIR CONTROL ROOM ↗</a></div></section>
       <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">GALERIA DE CONQUISTAS</span><h2>Hall da fama</h2></div></div>
-        {% if achievements %}<div class="hub-card-grid">{% for item in achievements %}<article class="hub-card achievement-card">{% set media = achievement_media.get(item.id, {}) %}{% if media.animation %}<img src="{{ media.animation|e }}" alt="" loading="lazy">{% elif media.image %}<img src="{{ media.image|e }}" alt="" loading="lazy">{% else %}<div class="achievement-placeholder">✧</div>{% endif %}<h3>{{ item.title }}</h3><p>{{ item.description or 'Reconhecimento especial do UBC.' }}</p><small>ENTREGUE A {{ item.user.name|upper|e }} · POR {{ item.awarded_by.name if item.awarded_by else 'UBC' }}</small></article>{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>As primeiras lendas ainda serão reconhecidas.</h2><p>Os organizadores podem entregar conquistas personalizadas acima.</p></div>{% endif %}
+        {% if achievements %}<div class="hub-card-grid">{% for item in achievements %}<article class="hub-card achievement-card">{% set media = achievement_media.get(item.id, {}) %}{% if media.animation %}<img src="{{ media.animation|e }}" alt="" loading="lazy">{% elif media.image %}<img src="{{ media.image|e }}" alt="" loading="lazy">{% else %}<div class="achievement-placeholder">✧</div>{% endif %}<h3>{{ item.title }}</h3><p>{{ item.description or 'Reconhecimento especial do UBC.' }}</p><small>ENTREGUE A {{ item.user.name|upper|e }}</small></article>{% endfor %}</div>{% else %}<div class="module-empty compact-empty"><h2>As primeiras lendas ainda serão reconhecidas.</h2></div>{% endif %}
       </section>
-      <section class="competition-create"><div><span class="feature-state">SUA COLEÇÃO</span><h2>Salvar um clip</h2><p>Guarde links de momentos marcantes para rever depois.</p></div>
-        <form class="competition-create-form" method="post" action="{{ url_for('main.save_clip') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Título<input name="title" maxlength="140" required placeholder="Ex.: Final insana"></label><label>Link do vídeo<input type="url" name="url" required placeholder="https://..."></label><label>Descrição<input name="description" maxlength="500" placeholder="Contexto do momento"></label><button class="games-cta" type="submit">SALVAR CLIP ↗</button></form>
-      </section>
-      <section class="hub-section"><div class="competition-section-heading"><div><span class="feature-state">CLIPS SALVOS PELA TURMA</span><h2>Melhores momentos</h2></div></div>
-        {% if clips %}<div class="hub-card-grid">{% for clip in clips %}<article class="hub-card"><span class="feature-state">{{ clip.user.name|upper|e }}</span><h3>{{ clip.title }}</h3><p>{{ clip.description or 'Momento salvo na coleção.' }}</p><a class="text-link" href="{{ clip.url|e }}" target="_blank" rel="noopener noreferrer">ASSISTIR CLIP ↗</a></article>{% endfor %}</div>{% else %}<p class="hub-muted">Ainda não há clips salvos.</p>{% endif %}
-      </section>
-
     {% elif module_key == 'community' %}
       <section class="competition-create"><div><span class="feature-state">MURAL PRIVADO</span><h2>Compartilhe com a turma</h2><p>Publique avisos, comentários e links de clips para todos os amigos.</p></div>
         <form class="competition-create-form" method="post" action="{{ url_for('main.create_community_post') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label>Publicação<textarea name="body" rows="4" maxlength="2000" required placeholder="O que está rolando na Bazinga?"></textarea></label><label>Link de clip (opcional)<input type="url" name="clip_url" placeholder="https://..."></label><button class="games-cta" type="submit">PUBLICAR NO MURAL ↗</button></form>

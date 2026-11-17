@@ -52,33 +52,6 @@
       {% if search_query %}<a href="{{ url_for('main.competitions') }}">LIMPAR</a>{% endif %}
     </form>
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<p class="competition-flash {{ category }}" role="status">{{ message }}</p>{% endfor %}{% endwith %}
-    <section class="competition-create">
-      <div><span class="feature-state">ORGANIZADORES</span><h2>Monte sua própria disputa.</h2><p>Crie um campeonato e abra as inscrições para a comunidade.</p></div>
-      {% if current_user %}
-      <form method="post" action="{{ url_for('main.create_competition') }}" class="competition-create-form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        <label>Nome do evento<input name="title" maxlength="180" required placeholder="Ex.: UBC Summer Cup"></label>
-        <label>Jogo<input name="game_title" maxlength="180" required placeholder="Ex.: Super Smash Bros. Ultimate"></label>
-        <input type="hidden" name="competition_mode" value="individual"><p class="competition-form-note">Modalidade individual (equipes também podem ser organizadas).</p>
-        <div class="media-upload-field">
-<label for="tournament-image-file">Imagem do jogo/evento</label>
-<input id="tournament-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
-<input type="hidden" name="image_url" id="tournament-image-reference">
-<p class="media-upload-help">PNG, JPG, WebP ou GIF · até 8 MB. Também pode arrastar o arquivo.</p>
-<div class="media-upload-preview" id="tournament-image-preview" aria-live="polite"></div>
-<p class="media-upload-status" id="tournament-image-status" role="status"></p></div>
-        <label>Data e horário<input type="datetime-local" name="starts_at"></label>
-        <label>Quantidade de vagas<input type="number" name="max_participants" min="2" max="512" placeholder="Sem limite"></label>
-        <label>Local / plataforma<input name="venue" maxlength="180" placeholder="Ex.: Discord / presencial"></label>
-        <label>Link da transmissão (opcional)<input type="url" name="stream_url" placeholder="https://..."></label>
-        <label>Descrição<textarea name="description" maxlength="5000" rows="3" placeholder="Sobre o campeonato e o jogo"></textarea></label>
-        <label>Regras<textarea name="rules" maxlength="5000" rows="3" placeholder="Formato, regras e critérios de desempate"></textarea></label>
-        <button class="games-cta" type="submit">CRIAR CAMPEONATO <span>↗</span></button>
-      </form>
-      {% else %}
-      <div class="competition-detail-actions"><p>Entre na sua conta para organizar um campeonato.</p><a class="games-cta" href="{{ url_for('main.championship_home', screen='auth') }}">ENTRAR PARA ORGANIZAR <span>↗</span></a></div>
-      {% endif %}
-    </section>
     <section class="competition-list">
       <div class="competition-section-heading"><div><span class="feature-state">INSCRIÇÕES DISPONÍVEIS</span><h2>{{ "Resultados da busca" if search_query else "Próximas disputas" }}</h2></div><span class="competition-count">{{ tournaments|length }} TORNEIO(S)</span></div>
       {% if tournaments %}
@@ -91,7 +64,7 @@
         {% endfor %}
         </div>
       {% else %}
-        <div class="module-empty"><div class="module-empty-icon">♜</div><h2>{{ "Nenhum campeonato encontrado." if search_query else "Nenhum campeonato aberto ainda." }}</h2><p>{{ "Tente outro termo de busca." if search_query else "Crie o primeiro torneio acima ou volte em breve para encontrar novas disputas." }}</p></div>
+        <div class="module-empty"><div class="module-empty-icon">♜</div><h2>{{ "Nenhum campeonato encontrado." if search_query else "Nenhum campeonato aberto ainda." }}</h2><p>{{ "Tente outro termo de busca." if search_query else "Os próximos torneios publicados aparecerão aqui." }}</p></div>
       {% endif %}
     </section>
     <footer class="games-footer"><span>BAZINGA CHAMPIONSHIP</span><span>BUILT FOR THE COMPETITIVE SPIRIT.</span></footer>

@@ -669,3 +669,33 @@ body.intro-lock{overflow:hidden}
 .competition-card-art{isolation:isolate;min-width:0}
 .competition-card-art>span{max-width:85%;text-align:center;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .competition-event-image{object-fit:cover;object-position:center}
+
+/* UBC 2014-era portal / Control Room */
+.games-layout{background:radial-gradient(ellipse at 80% 0%,#5c241b30,transparent 38%),linear-gradient(135deg,#0b0a0d,#171016 55%,#0c0b10)}
+.games-sidebar,.module-sidebar{background:linear-gradient(180deg,#21151a,#100e13);border-right:1px solid #b66a3d55;box-shadow:8px 0 30px #0006}
+.games-hero,.module-hero{background-image:linear-gradient(135deg,#27171d,#151117 60%,#321b1b);border:1px solid #b76a3d55;box-shadow:inset 0 1px #ffffff12,0 12px 35px #0006}
+.games-hero h1,.module-hero h1{text-shadow:3px 4px 0 #54251f,0 0 28px #d66b3733}
+.games-cta{border:1px solid #f4c38a;background:linear-gradient(#e9a35f,#a94c2c);box-shadow:inset 0 1px #fff8,0 4px 0 #612b24,0 8px 18px #0006;text-shadow:0 1px #5d2c21;transition:transform .15s,filter .15s}
+.games-cta:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.competition-event-image{object-fit:contain!important;object-position:center;background:#100d12;padding:8px;opacity:1!important}
+.tournament-detail-art{object-fit:contain!important;object-position:right center;background:linear-gradient(90deg,transparent,#100d12 90%);padding:18px}
+.admin-shell{max-width:1280px;margin:0 auto;padding:28px 34px 70px}
+.admin-masthead{display:flex;justify-content:space-between;align-items:end;gap:20px;padding:28px 0;border-bottom:3px double #bd764b66}
+.admin-masthead h1{font:900 clamp(42px,7vw,76px)/.85 var(--display-font);margin:10px 0;color:#f3d1ae;text-shadow:3px 4px #5c2b25}
+.admin-kicker,.admin-eyebrow{font-size:9px;letter-spacing:.22em;font-weight:900;color:#d79a67}
+.admin-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0}
+.admin-tile{min-height:170px;padding:22px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#302027,#171319 70%);border:1px solid #c27a4d66;box-shadow:inset 0 1px #fff1,0 7px 0 #09080b,0 12px 20px #0005}
+.admin-tile strong{font:800 27px var(--display-font);color:#f3d4b5}.admin-tile p{color:#bca99d;font-size:12px;line-height:1.6}
+.admin-tile a,.admin-redirect-strip a{align-self:start;color:#ffc48c;font-size:10px;font-weight:900;letter-spacing:.12em;border-bottom:1px solid #b66b42;padding-bottom:5px}
+.admin-table{width:100%;border-collapse:collapse;background:#151117;border:1px solid #a9674544}
+.admin-table th,.admin-table td{padding:13px 15px;text-align:left;border-bottom:1px solid #ffffff16;font-size:12px}
+.admin-table th{color:#d99b69;font-size:9px;letter-spacing:.14em;background:#26181d}
+.admin-form{max-width:850px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:24px;background:linear-gradient(145deg,#25191f,#121015);border:1px solid #b66b4555;box-shadow:0 12px 30px #0006}
+.admin-form label{display:grid;gap:8px;color:#d9b99e;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.admin-form label.wide{grid-column:1/-1}
+.admin-form input,.admin-form textarea,.admin-form select{width:100%;padding:13px;border:1px solid #79503f;background:#0b0a0e;color:#f6e8dc;font:inherit;font-size:13px}
+.admin-form textarea{min-height:105px;resize:vertical}.admin-form .games-cta{justify-self:start;cursor:pointer}
+.admin-redirect-strip{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:24px 0;padding:18px 20px;background:linear-gradient(90deg,#3b211f,#171319);border:1px solid #bd764b66}
+.admin-redirect-strip span{color:#e0a16c;font-size:9px;font-weight:900;letter-spacing:.15em}.admin-redirect-strip strong{font:700 19px var(--display-font);color:#f3e0cf}
+@media(max-width:800px){.admin-grid{grid-template-columns:1fr 1fr}.admin-masthead{align-items:start;flex-direction:column}}
+@media(max-width:560px){.admin-shell{padding:20px 15px 45px}.admin-grid,.admin-form{grid-template-columns:1fr}.admin-form label.wide{grid-column:auto}.admin-table{display:block;overflow-x:auto}}
